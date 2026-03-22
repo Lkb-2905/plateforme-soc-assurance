@@ -1,0 +1,130 @@
+# ================================================================
+# RAPPORT D'INCIDENT DE SÉCURITÉ – {{ incident_type | upper }}
+# Généré le : {{ generated_at }}
+# Référence : {{ incident_ref }}
+# ================================================================
+
+---
+
+## 🏢 INFORMATIONS GÉNÉRALES
+
+| Champ                    | Valeur                                            |
+|--------------------------|---------------------------------------------------|
+| **Référence Incident**   | `{{ incident_ref }}`                              |
+| **Classification**       | {{ classification }}                              |
+| **Sévérité**             | {{ severity }} / 5                                |
+| **Statut**               | {{ status }}                                      |
+| **Date de détection**    | {{ detection_time }}                              |
+| **Date de résolution**   | {{ resolution_time | default("En cours", true) }} |
+| **Analyste assigné**     | {{ analyst_name }}                                |
+| **Équipe**               | {{ team_name }}                                   |
+
+---
+
+## 🎯 RÉSUMÉ EXÉCUTIF
+
+{{ executive_summary }}
+
+> **Impact Métier** : {{ business_impact }}
+
+---
+
+## 📋 CHRONOLOGIE DES ÉVÉNEMENTS
+
+| Heure (UTC)       | MITRE ATT&CK     | Description                                  | Hôte             | IP Source          |
+|-------------------|------------------|----------------------------------------------|------------------|--------------------|
+{% for event in timeline -%}
+| {{ event.time }}  | `{{ event.mitre_id }}` | {{ event.description }}            | `{{ event.host }}` | `{{ event.source_ip }}` |
+{% endfor %}
+
+---
+
+## 🖥️ SYSTÈMES COMPROMIS / AFFECTÉS
+
+{% for system in affected_systems %}
+- **{{ system.hostname }}** (`{{ system.ip }}`) — Rôle : *{{ system.role }}* — Statut : `{{ system.status }}`
+{% endfor %}
+
+---
+
+## 👤 COMPTES UTILISATEURS IMPLIQUÉS
+
+{% for account in affected_accounts %}
+- **{{ account.name }}** (`{{ account.username }}`) — Département : {{ account.dept }} — Action : {{ account.action }}
+{% endfor %}
+
+---
+
+## 🔬 INDICATEURS DE COMPROMISSION (IoCs)
+
+{% for ioc in iocs %}
+| **Type** | **Valeur** | **Score menace** | **Sources CTI** |
+|----------|------------|------------------|-----------------|
+| {{ ioc.type }} | `{{ ioc.value }}` | {{ ioc.score }}/100 | {{ ioc.sources | join(", ") }} |
+{% endfor %}
+
+---
+
+## ⚔️ MAPPING MITRE ATT&CK
+
+| Tactique          | Technique              | ID Technique |
+|-------------------|------------------------|--------------|
+{% for technique in mitre_techniques -%}
+| {{ technique.tactic }} | {{ technique.name }} | `{{ technique.id }}` |
+{% endfor %}
+
+---
+
+## 🛡️ ACTIONS DE RÉPONSE SOAR EFFECTUÉES
+
+{% for action in soar_actions %}
+### {{ loop.index }}. {{ action.name }}
+
+- **Statut** : `{{ action.status }}`
+- **Exécuté par** : Playbook `{{ action.playbook }}`
+- **Horodatage** : {{ action.timestamp }}
+- **Détail** : {{ action.detail }}
+{% endfor %}
+
+---
+
+## 📊 ÉVALUATION DE LA MENACE CTI
+
+**Rapport de Veille Threat Intelligence :**
+
+| Indicateur | Score | Malveillant | Tags |
+|------------|-------|-------------|------|
+{% for indicator in cti_results -%}
+| `{{ indicator.value }}` | {{ indicator.score }}/100 | {% if indicator.is_malicious %}🔴 Oui{% else %}🟢 Non{% endif %} | {{ indicator.tags | join(", ") }} |
+{% endfor %}
+
+---
+
+## 🔧 RECOMMANDATIONS
+
+{% for rec in recommendations %}
+{{ loop.index }}. **{{ rec.title }}** *(Priorité : {{ rec.priority }})*
+   > {{ rec.detail }}
+{% endfor %}
+
+---
+
+## 📁 PIÈCES JOINTES & PREUVES
+
+{% for artifact in artifacts %}
+- `{{ artifact.name }}` – {{ artifact.description }} *({{ artifact.size }})*
+{% endfor %}
+
+---
+
+## ✍️ VALIDATION
+
+| Rôle              | Nom                | Signature      | Date       |
+|-------------------|--------------------|----------------|------------|
+| Analyste N{{ analyst_level }} | {{ analyst_name }} | *(électronique)* | {{ generated_at[:10] }} |
+| Responsable SOC   | {{ soc_manager }}  | *(électronique)* | {{ generated_at[:10] }} |
+
+---
+
+*Document généré automatiquement par la plateforme SOC – {{ team_name }}*
+*Classification : {{ classification }} – Ne pas diffuser hors des équipes SOC/RSI*

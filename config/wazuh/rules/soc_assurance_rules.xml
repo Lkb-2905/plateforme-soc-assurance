@@ -1,0 +1,136 @@
+<!--
+  ================================================================
+  RÈGLES WAZUH CUSTOM - Scénarios SOC Assurantiel
+  Fichier : config/wazuh/rules/soc_assurance_rules.xml
+  ================================================================
+  Ces règles détectent les 3 scénarios d'incidents simulés :
+  - Ransomware (chiffrement massif de fichiers contrats/sinistres)
+  - Phishing / Spear-Phishing
+  - Compromission de compte (Impossible Travel)
+  ================================================================
+-->
+<group name="soc_assurance,">
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 1 : RANSOMWARE                                       -->
+  <!-- Tactique MITRE : T1486 - Data Encrypted for Impact            -->
+  <!-- ============================================================ -->
+
+  <!-- Détection : Renommage massif de fichiers sensibles -->
+  <rule id="100001" level="10">
+    <match>RANSOMWARE_FILE_RENAME</match>
+    <description>Ransomware - Renommage de fichier sensible détecté</description>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+    <group>ransomware,pii_risk,</group>
+  </rule>
+
+  <!-- Détection : Seuil critique - Attaque en cours confirmée -->
+  <rule id="100002" level="15" frequency="20" timeframe="60">
+    <if_matched_sid>100001</if_matched_sid>
+    <description>CRITIQUE - Ransomware actif : +20 fichiers chiffrés en 60s sur hote $(agent.name)</description>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+    <group>ransomware,critical,incident_response,</group>
+  </rule>
+
+  <!-- Détection : Extension de chiffrement connue -->
+  <rule id="100003" level="12">
+    <match>ENCRYPTED_EXTENSION_DETECTED</match>
+    <field name="file.extension">\.locked$|\.encrypted$|\.crypt$|\.ryuk$|\.conti$</field>
+    <description>Ransomware - Extension de chiffrement connue détectée : $(file.name)</description>
+    <mitre>
+      <id>T1486</id>
+    </mitre>
+    <group>ransomware,critical,</group>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 2 : PHISHING / SPEAR-PHISHING                        -->
+  <!-- Tactique MITRE : T1566.001 - Spearphishing Attachment          -->
+  <!-- ============================================================ -->
+
+  <!-- Détection : Email avec URL malveillante (enrichie par CTI) -->
+  <rule id="100010" level="10">
+    <match>PHISHING_URL_DETECTED</match>
+    <description>Phishing - URL malveillante détectée dans un email entrant</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,email_threat,</group>
+  </rule>
+
+  <!-- Détection : Email avec pièce jointe suspecte (macro Office) -->
+  <rule id="100011" level="11">
+    <match>SUSPICIOUS_ATTACHMENT</match>
+    <field name="file.extension">\.doc$|\.docm$|\.xls$|\.xlsm$|\.xlsb$|\.pptm$</field>
+    <description>Phishing - Pièce jointe Office avec macros reçue par $(user.email)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1204.002</id>
+    </mitre>
+    <group>phishing,macro_threat,</group>
+  </rule>
+
+  <!-- Détection : Utilisateur a cliqué sur URL de phishing -->
+  <rule id="100012" level="13">
+    <match>USER_CLICKED_PHISHING_URL</match>
+    <description>ALERTE - Utilisateur $(user.name) a cliqué sur une URL de phishing confirmée</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1204.001</id>
+    </mitre>
+    <group>phishing,user_interaction,high_priority,</group>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 3 : COMPROMISSION DE COMPTE (IMPOSSIBLE TRAVEL)      -->
+  <!-- Tactique MITRE : T1078 - Valid Accounts                        -->
+  <!-- ============================================================ -->
+
+  <!-- Détection : Connexion depuis pays à risque -->
+  <rule id="100020" level="9">
+    <match>LOGIN_FROM_HIGH_RISK_COUNTRY</match>
+    <description>Connexion depuis pays à risque élevé : $(source.geo.country_name) pour $(user.name)</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>account_compromise,geo_anomaly,</group>
+  </rule>
+
+  <!-- Détection : Impossible Travel confirmé -->
+  <rule id="100021" level="14">
+    <match>IMPOSSIBLE_TRAVEL_DETECTED</match>
+    <description>CRITIQUE - Impossible Travel : $(user.name) connecté depuis $(src_city_1) puis $(src_city_2) en $(travel_time_minutes)min</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>account_compromise,impossible_travel,critical,</group>
+  </rule>
+
+  <!-- Détection : Connexion compte VIP / Privilégié -->
+  <rule id="100022" level="15">
+    <if_matched_sid>100021</if_matched_sid>
+    <field name="user.role">admin|director|dsi|rssi|cfo|ceo</field>
+    <description>INCIDENT MAJEUR - Compromission probable compte VIP $(user.name) - Exige réponse immédiate</description>
+    <mitre>
+      <id>T1078.002</id>
+    </mitre>
+    <group>account_compromise,vip_account,p1_incident,</group>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- RÈGLES DE DÉCLENCHEMENT SOAR                                  -->
+  <!-- La règle parent déclenche le Webhook vers Shuffle             -->
+  <!-- ============================================================ -->
+
+  <!-- Déclencheur global : tout incident critique -->
+  <rule id="100099" level="1">
+    <if_group>critical,p1_incident,high_priority,</if_group>
+    <description>Déclenchement Playbook SOAR pour incident critique</description>
+    <group>soar_trigger,</group>
+  </rule>
+
+</group>

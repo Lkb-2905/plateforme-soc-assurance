@@ -1,0 +1,60 @@
+version: '3.8'
+
+# ============================================================
+# SHUFFLE SOAR – Stack minimaliste pour démarrage rapide
+# Usage : docker-compose -f docker-compose.shuffle.yml up -d
+# → Interface : http://localhost:3001
+# ============================================================
+
+services:
+
+  shuffle-opensearch:
+    image: opensearchproject/opensearch:2.14.0
+    hostname: shuffle-opensearch
+    restart: always
+    environment:
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - plugins.security.disabled=true
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - shuffle-opensearch:/usr/share/opensearch/data
+
+  shuffle-backend:
+    image: ghcr.io/shuffle/shuffle-backend:latest
+    hostname: shuffle-backend
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - SHUFFLE_OPENSEARCH_URL=http://shuffle-opensearch:9200
+      - SHUFFLE_APP_HOTLOAD_FOLDER=/shuffle-apps
+      - SHUFFLE_FILE_LOCATION=/files
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shuffle-apps:/shuffle-apps
+      - shuffle-files:/files
+    depends_on:
+      - shuffle-opensearch
+
+  shuffle-frontend:
+    image: ghcr.io/shuffle/shuffle-frontend:latest
+    hostname: shuffle-frontend
+    restart: always
+    ports:
+      - "3001:80"
+    environment:
+      - BACKEND_HOSTNAME=shuffle-backend
+    depends_on:
+      - shuffle-backend
+
+volumes:
+  shuffle-opensearch:
+  shuffle-apps:
+  shuffle-files:

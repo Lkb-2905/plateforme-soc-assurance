@@ -1,0 +1,49 @@
+# ==============================================
+# .gitignore – Plateforme SOC Assurantielle
+# ==============================================
+
+# ── Secrets & Configuration ──────────────────
+.env
+*.env
+!.env.example
+config/wazuh/ssl/
+config/shuffle/secrets/
+
+# ── Rapports générés (ne pas versionner) ────
+reports/generated/
+*.pdf
+
+# ── Python ───────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+.env.local
+
+# ── Docker ───────────────────────────────────
+docker/*.log
+
+# ── Logs temporaires ─────────────────────────
+*.log
+logs/
+
+# ── IDEs ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+wp
+*.swo
+*~

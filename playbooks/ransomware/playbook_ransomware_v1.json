@@ -1,0 +1,67 @@
+{
+  "name": "Playbook - Ransomware Response",
+  "description": "Playbook SOAR automatisant la réponse à une alerte Ransomware détectée par Wazuh. Intègre la vérification CTI, l'isolation réseau simulée, la notification et la génération du rapport d'incident.",
+  "triggers": [
+    {
+      "type": "webhook",
+      "name": "Wazuh Ransomware Alert",
+      "description": "Déclenché par Wazuh Integration sur les règles 100001, 100002, 100003"
+    }
+  ],
+  "actions": [
+    {
+      "step": 1,
+      "name": "Extraction des données de l'alerte",
+      "type": "python",
+      "description": "Parse le JSON de l'alerte Wazuh et extrait les IoCs (IP, Hash, Hôte affecté)",
+      "code": "alert = json.loads(wazuh_alert)\nhost     = alert.get('agent', {}).get('name', 'UNKNOWN')\nsrc_ip   = alert.get('data', {}).get('source_ip', 'UNKNOWN')\nrule_id  = alert.get('rule', {}).get('id', '0')\nreturn {'host': host, 'source_ip': src_ip, 'rule_id': rule_id, 'severity': 'CRITICAL'}"
+    },
+    {
+      "step": 2,
+      "name": "Enrichissement CTI – Vérification IP malveillante",
+      "type": "http_request",
+      "description": "Interroge AbuseIPDB pour scorer l'IP source de l'alerte",
+      "method": "GET",
+      "url": "https://api.abuseipdb.com/api/v2/check?ipAddress={{source_ip}}&maxAgeInDays=90",
+      "headers": {
+        "Key": "{{ABUSEIPDB_API_KEY}}",
+        "Accept": "application/json"
+      },
+      "on_success": "Continuer → Étape 3",
+      "on_failure": "Log erreur CTI et Continuer"
+    },
+    {
+      "step": 3,
+      "name": "Décision : Score CTI > 50 ?",
+      "type": "condition",
+      "description": "Si le score AbuseIPDB est supérieur à 50, l'IP est confirmée malveillante",
+      "condition": "cti_response.data.abuseConfidenceScore > 50",
+      "on_true": "Étape 4",
+      "on_false": "Étape 5 (Alerte Warning uniquement)"
+    },
+    {
+      "step": 4,
+      "name": "Isolation réseau de l'hôte (simulation)",
+      "type": "python",
+      "description": "Envoie une commande d'isolation réseau à l'API Wazuh Active Response. Dans un vrai environnement, cela déclenche une règle de firewall ou appelle l'API EDR.",
+      "code": "import requests, os\nwazuh_url = os.getenv('WAZUH_API_URL')\n# Active Response Wazuh → isolation de l'agent\nresponse = requests.put(\n    f\"{wazuh_url}/active-response\",\n    json={'command': 'isolation-network0', 'arguments': [host]},\n    auth=(os.getenv('WAZUH_API_USER'), os.getenv('WAZUH_API_PASSWORD')),\n    verify=False\n)\nreturn {'isolation_status': 'ISOLÉ' if response.ok else 'ÉCHEC ISOLATION'}"
+    },
+    {
+      "step": 5,
+      "name": "Notification Cellule de Crise (Email simulé)",
+      "type": "python",
+      "description": "Génère et envoie une notification d'alerte critique aux équipes SOC N2 et RSSI",
+      "code": "notification = {\n    'recipients': ['rssi@assurance-demo.fr', 'soc-n2@assurance-demo.fr'],\n    'subject': f'[P1-CRISE] Ransomware actif sur {host} – Action immédiate requise',\n    'body': f'''INCIDENT MAJEUR – RANSOMWARE DÉTECTÉ\n\nHôte: {host}\nIP Source: {source_ip} (Score CTI: {cti_score}/100)\nRègle Wazuh: {rule_id}\nHorodatage: {timestamp}\n\nACTIONS AUTOMATIQUES EFFECTUÉES:\n✅ Hôte {host} isolé du réseau\n✅ Rapport d'incident en cours de génération\n\nIntervenez pour la phase d'éradication.\n'''\n}\nreturn notification"
+    },
+    {
+      "step": 6,
+      "name": "Génération du Rapport d'Incident",
+      "type": "python",
+      "description": "Appelle le script generate_report.py pour produire le rapport d'incident complet",
+      "code": "import subprocess, sys\nresult = subprocess.run(\n    [sys.executable, './scripts/generate_report.py', '--type', 'ransomware', '--analyst', 'Shuffle SOAR Automation'],\n    capture_output=True, text=True\n)\nreturn {'report_generated': result.returncode == 0, 'report_path': result.stdout.strip()}"
+    }
+  ],
+  "version": "1.0",
+  "mitre_coverage": ["T1566.001", "T1204.002", "T1486", "T1021.002"],
+  "last_updated": "2024-03-22"
+}

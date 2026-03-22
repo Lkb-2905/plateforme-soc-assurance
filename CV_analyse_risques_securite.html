@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV — Analyse de risques de sécurité & de données informatiques</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #0f172a;
+      --secondary: #1e293b;
+      --accent: #3b82f6;
+      --accent-light: #60a5fa;
+      --text: #334155;
+      --text-light: #64748b;
+      --bg: #f8fafc;
+      --border: #e2e8f0;
+      --success: #10b981;
+    }
+    
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 10.5pt;
+    }
+    
+    .page {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 2.5rem 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 60%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+      position: relative;
+    }
+    
+    .header .subtitle {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+    
+    /* Sections */
+    .section {
+      padding: 1.75rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .section:last-child {
+      border-bottom: none;
+    }
+    
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.4;
+    }
+    
+    .objective {
+      font-size: 0.95rem;
+      color: var(--secondary);
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    
+    .objective-desc {
+      margin-top: 0.5rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+    
+    /* Skills grid */
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .skill {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    /* Results */
+    .results {
+      display: grid;
+      gap: 0.75rem;
+    }
+    
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    
+    .result-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--success), #059669);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .result-icon::after {
+      content: '✓';
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    
+    .result-text {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 1rem 2.5rem;
+      background: var(--bg);
+      font-size: 0.75rem;
+      color: var(--text-light);
+      text-align: center;
+    }
+    
+    @media print {
+      body { background: white; }
+      .page { box-shadow: none; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Analyse de risques de sécurité & de données informatiques</h1>
+      <p class="subtitle">Expertise en cybersécurité et gestion des données techniques</p>
+    </header>
+    
+    <section class="section">
+      <h2 class="section-title">Objectif</h2>
+      <p class="objective">Analyser des risques potentiels de sécurité dans un environnement informatique & analyser des données issues d'un système informatique pour améliorer la gestion des informations.</p>
+    </section>
+    
+    <section class="section">
+      <h2 class="section-title">Compétences mobilisées</h2>
+      <div class="skills">
+        <span class="skill">Analyse de données techniques</span>
+        <span class="skill">Cybersécurité</span>
+        <span class="skill">Analyse des systèmes & de données</span>
+        <span class="skill">Outils bureautiques</span>
+      </div>
+    </section>
+    
+    <section class="section">
+      <h2 class="section-title">Résultats</h2>
+      <div class="results">
+        <div class="result-item">
+          <div class="result-icon"></div>
+          <span class="result-text">Amélioration de la gestion des données techniques</span>
+        </div>
+        <div class="result-item">
+          <div class="result-icon"></div>
+          <span class="result-text">Identification de risques potentiels</span>
+        </div>
+        <div class="result-item">
+          <div class="result-icon"></div>
+          <span class="result-text">Amélioration de la compréhension des problématiques de sécurité</span>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="footer">
+      CV — Alternance / Stage — Analyse de risques de sécurité & de données informatiques
+    </footer>
+  </div>
+</body>
+</html>

@@ -49,6 +49,10 @@ Il illustre la maîtrise des compétences suivantes :
 
 ## 🏗️ ARCHITECTURE DU PROJET
 
+<p align="center">
+  <img src="soc_architecture_globale.svg" alt="Architecture Globale SOC" width="850">
+</p>
+
 ### Flux de traitement des incidents (Detect → Respond)
 
 1.  **Génération** : Les scripts `simulators` injectent des événements malveillants simulés (Payloads JSON).
@@ -151,6 +155,10 @@ python scripts/soc_engine.py --scenario phishing
 ---
 
 ## 🗺️ ROADMAP & ÉVOLUTIONS
+
+<p align="center">
+  <img src="roadmap_implementation.svg" alt="Roadmap d'implémentation" width="850">
+</p>
 
 **Version Actuelle : 3.0.0 Enterprise ✅**
 *   Moteur SIEM/SOAR Python complet.

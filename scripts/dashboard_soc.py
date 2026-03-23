@@ -9,7 +9,7 @@ st.set_page_config(page_title="SOC Executive Dashboard", page_icon="🛡️", la
 # Chemins des rapports
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "reports", "generated")
 
-st.title("🛡️ Portail SOC - Surveillance & Réponse (Covéa Simulation)")
+st.title("🛡️ Portail SOC - Surveillance & Réponse (Assurances)")
 st.markdown("---")
 
 # Récupérer les rapports générés (triés par date, le plus récent en premier)

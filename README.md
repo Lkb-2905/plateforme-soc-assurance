@@ -186,7 +186,7 @@ Ce projet est développé dans un cadre académique et professionnel. Droits ré
 🐙 GitHub : @Lkb-2905
 
 🙏 **REMERCIEMENTS**
-*   **Covéa & L'Écosystème Assurantiel** : Pour l'inspiration des standards d'opération de la menace Cyber en milieu critique.
+*   **L'Écosystème des Mutuelles et Assurances** : Pour l'inspiration des standards d'opération de la menace Cyber en milieu critique.
 *   **ESIEA** : Pour l'excellence de la formation ingénieur.
 
 ⭐ *Si ce projet vous semble pertinent pour protéger les systèmes de demain, laissez une étoile ! Fait avec ❤️, Python, et une bonne dose d'Investigation Numérique.*

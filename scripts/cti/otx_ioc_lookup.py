@@ -18,7 +18,7 @@ def check_otx_reputation(ioc: str, ioc_type: str = "IPv4"):
     
     # Header requis par l'API (Même en requête publique, de simples User-Agents suffisent souvent)
     headers = {
-        "User-Agent": "Covea-SOC-Simulation-Client/1.0"
+        "User-Agent": "Assurance-SOC-Simulation-Client/1.0"
     }
 
     try:

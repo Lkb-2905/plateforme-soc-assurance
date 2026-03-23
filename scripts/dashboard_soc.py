@@ -63,6 +63,18 @@ else:
                 # Tags pour le filtrage
                 tags = case_data.get('tags', [])
                 st.info(f"**Tags de qualification :** {', '.join(tags)}")
+                
+                # --- KPI Cyber & Risque Assurantiel ---
+                st.markdown("---")
+                cf = case_data.get('customFields', {})
+                st.info(f"⏱️ **MTTD (Temps moyen de détection):** {cf.get('mttd', {}).get('string', 'N/A')}")
+                st.info(f"⚡ **MTTR (Temps moyen de réponse):** {cf.get('mttr', {}).get('string', 'N/A')}")
+                
+                if cf.get('gdpr_exposed', {}).get('boolean', False):
+                    st.error("🚨 **RISQUE ASSURANTIEL & CNIL**")
+                    st.warning("⚠️ **Données exposées** : Contrats / Santé / Sinistres.\n\n⏰ **Obligation légale** : Déclaration CNIL sous 72H.")
+                else:
+                    st.success("✅ **Impact Réglementaire :** Pas d'exposition de données clients critiques.")
 
             # --- Extraction des Observables (CTI) ---
             st.markdown("#### 🔍 Observables Extraits (Cyber Threat Intelligence)")

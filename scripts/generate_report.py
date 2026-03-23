@@ -43,7 +43,15 @@ SCENARIO_DATA = {
             "déclenchée par le playbook SOAR. Aucune donnée n'a été exfiltrée. Le vecteur d'entrée initial "
             "était une macro malveillante dans un document Word reçu par email."
         ),
-        "business_impact": "Interruption temporaire d'accès au partage /data/contrats/ (47 min). Données de 12 dossiers sinistres affectées, sauvegardées et restaurées depuis les backups J-1.",
+        "business_impact": "Interruption temporaire d'accès au partage /data/contrats/ (47 min). Données de 12 dossiers sinistres affectées, sauvegardées et restaurées.",
+        "mttd": "1 min 42 sec",
+        "mttr": "6 min 15 sec",
+        "insurance_risk": {
+            "category": "Contrats Habitation / Auto",
+            "contracts_at_risk": 14200,
+            "gdpr_breach_confirmed": True,
+            "cnil_deadline_hours": 72
+        },
         "timeline": [
             {"time": "08:14:32", "mitre_id": "T1566.001", "description": "Réception email avec macro malveillante", "host": "PC-FINANCE-142", "source_ip": "185.220.101.3"},
             {"time": "08:17:08", "mitre_id": "T1204.002", "description": "Exécution de la macro – lancement de svchost32.exe", "host": "PC-FINANCE-142", "source_ip": "127.0.0.1"},
@@ -101,6 +109,14 @@ SCENARIO_DATA = {
         "status": "Résolu",
         "executive_summary": "Une campagne de spear-phishing a été détectée ciblant le département Finance. Un email contenant une URL malveillante a été reçu par 3 utilisateurs. L'analyse CTI a confirmé le domaine malveillant. Un utilisateur a cliqué sur le lien. Le playbook SOAR a déclenché la suppression automatique de l'email et la réinitialisation préventive du mot de passe.",
         "business_impact": "Aucune exfiltration de données confirmée. Réinitialisation du mot de passe pour 1 utilisateur.",
+        "mttd": "2 min 10 sec",
+        "mttr": "14 min 30 sec",
+        "insurance_risk": {
+            "category": "Accès données VIP / Comptabilité",
+            "contracts_at_risk": 0,
+            "gdpr_breach_confirmed": False,
+            "cnil_deadline_hours": 0
+        },
         "timeline": [
             {"time": "10:31:00", "mitre_id": "T1566.001", "description": "Email de phishing reçu par m.dupont@assurance-demo.fr", "host": "MAIL-GW-01", "source_ip": "185.220.101.5"},
             {"time": "10:31:02", "mitre_id": "T1566.001", "description": "URL malveillante détectée et vérifiée par CTI (Score: 92/100)", "host": "CTI-MODULE", "source_ip": "-"},
@@ -196,17 +212,28 @@ def generate_incident_report(incident_type: str, analyst_name: str = "Analyste S
             "message": f"Source: {', '.join(ioc.get('sources', []))} | Score: {ioc.get('score', 0)}"
         })
         
+    risk_data = data.get("insurance_risk", {})
+    desc = f"{data['executive_summary']}\n\n**Impact Business**: {data['business_impact']}\n"
+    desc += f"**Scoring Assurantiel**: Typologie: {risk_data.get('category', 'N/A')} | Contrats exposés: {risk_data.get('contracts_at_risk', 0)}"
+
     thehive_payload = {
         "title": f"[{data['incident_type'].upper()}] {data['incident_ref']}",
-        "description": data["executive_summary"] + "\n\n**Impact**: " + data["business_impact"],
+        "description": desc,
         "severity": data["severity"] - 1,
         "tlp": 2,
         "pap": 2,
         "tags": [data["incident_type"], "Automated-SOAR", "High-Priority"],
+        "customFields": {
+            "mttd": {"order": 1, "string": data.get("mttd", "N/A")},
+            "mttr": {"order": 2, "string": data.get("mttr", "N/A")},
+            "gdpr_exposed": {"order": 3, "boolean": risk_data.get("gdpr_breach_confirmed", False)},
+            "cnil_deadline": {"order": 4, "integer": risk_data.get("cnil_deadline_hours", 72)}
+        },
         "tasks": [
             {"title": "1. Validation de l'Alerte SIEM", "status": "Waiting", "group": "Triage"},
             {"title": "2. Vérification de l'endiguement SOAR (EDR/AD)", "status": "Waiting", "group": "Remediation"},
-            {"title": "3. Remédiation complète & Restauration", "status": "Waiting", "group": "Recovery"}
+            {"title": "3. Remédiation complète & Restauration", "status": "Waiting", "group": "Recovery"},
+            {"title": "4. ⚖️ Protocole Réglementaire : Vérification Fuite RGPD (Délai CNIL 72H)", "status": "Waiting", "group": "Compliance"}
         ],
         "observables": observables
     }

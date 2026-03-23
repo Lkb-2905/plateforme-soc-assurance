@@ -72,7 +72,14 @@ Scénarios majeurs couverts par les règles de détection et traités automatiqu
 
 ---
 
-## 📊 FONCTIONNALITÉS CLÉS
+## 📊 FONCTIONNALITÉS CLÉS & TABLEAUX DE BORD
+
+### Portail SOC de Supervision (Dashboard Exécutif)
+*(Aperçu de l'interface `localhost` générée par Streamlit et affichant dynamiquement les KPIs et remontées JSON de la matrice TheHive)*
+
+<p align="center">
+  <img src="Capture d’écran_23-3-2026_184310_localhost.jpeg" alt="SOC Dashboard" width="900" style="border-radius:10px;">
+</p>
 
 ### 1. Moteur SOAR Interactif (API EDR Mock)
 Contrairement à des simulations classiques qui font de simples `print`, ce SOAR utilise la librairie `requests` pour attaquer un serveur FastAPI local (`mock_edr_api.py`). Cela prouve la viabilité totale des scripts dans un vrai SI/SOC équipé de CrowdStrike, SentinelOne ou Microsoft Defender. Le SOAR intègre même un mécanisme de "fallback" gracieux au cas où l'API soit indisponible.

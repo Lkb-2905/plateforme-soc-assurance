@@ -81,6 +81,8 @@ Scénarios majeurs couverts par les règles de détection et traités automatiqu
   <img src="Capture d’écran_23-3-2026_184310_localhost.jpeg" alt="SOC Dashboard" width="900" style="border-radius:10px;">
 </p>
 
+> 📥 **[Ouvrir et Télécharger l'intégralité du Rapport Exécutif (Export PDF)](<SOC Executive Dashboard.pdf>)**
+
 ### 1. Moteur SOAR Interactif (API EDR Mock)
 Contrairement à des simulations classiques qui font de simples `print`, ce SOAR utilise la librairie `requests` pour attaquer un serveur FastAPI local (`mock_edr_api.py`). Cela prouve la viabilité totale des scripts dans un vrai SI/SOC équipé de CrowdStrike, SentinelOne ou Microsoft Defender. Le SOAR intègre même un mécanisme de "fallback" gracieux au cas où l'API soit indisponible.
 

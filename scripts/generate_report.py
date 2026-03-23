@@ -182,7 +182,40 @@ def generate_incident_report(incident_type: str, analyst_name: str = "Analyste S
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(rendered)
 
-    print(f"\n✅ Rapport généré → {output_path}")
+    # Sauvegarde de l'export JSON format "TheHive" (Case Management)
+    thehive_filename = f"thehive_case_{incident_type}_{now.strftime('%Y%m%d_%H%M%S')}.json"
+    thehive_path = os.path.join(OUTPUT_DIR, thehive_filename)
+    
+    observables = []
+    for ioc in data.get("iocs", []):
+        obs_type = "hash" if "Hash" in ioc.get("type", "") else "ip" if ioc.get("type") == "IP" else "domain" if ioc.get("type", "") == "Domain" else "other"
+        observables.append({
+            "dataType": obs_type,
+            "data": ioc.get("value", ""),
+            "tlp": 2,
+            "message": f"Source: {', '.join(ioc.get('sources', []))} | Score: {ioc.get('score', 0)}"
+        })
+        
+    thehive_payload = {
+        "title": f"[{data['incident_type'].upper()}] {data['incident_ref']}",
+        "description": data["executive_summary"] + "\n\n**Impact**: " + data["business_impact"],
+        "severity": data["severity"] - 1,
+        "tlp": 2,
+        "pap": 2,
+        "tags": [data["incident_type"], "Automated-SOAR", "High-Priority"],
+        "tasks": [
+            {"title": "1. Validation de l'Alerte SIEM", "status": "Waiting", "group": "Triage"},
+            {"title": "2. Vérification de l'endiguement SOAR (EDR/AD)", "status": "Waiting", "group": "Remediation"},
+            {"title": "3. Remédiation complète & Restauration", "status": "Waiting", "group": "Recovery"}
+        ],
+        "observables": observables
+    }
+    
+    with open(thehive_path, "w", encoding="utf-8") as f:
+        json.dump(thehive_payload, f, indent=4, ensure_ascii=False)
+
+    print(f"\n✅ Rapport PDF/MD généré → {output_path}")
+    print(f"🎫 Export THEHIVE généré → {thehive_path}")
     print(f"   Référence  : {data['incident_ref']}")
     print(f"   Type       : {data['incident_type']}")
     print(f"   Sévérité   : {data['severity']}/5")

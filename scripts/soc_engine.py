@@ -311,13 +311,19 @@ class SOAREngine:
         # Étape 2 – Enrichissement CTI (si configuré)
         cti_score = self._cti_check(event.get("source_ip"), "ip", result)
 
-        # Étape 3 – Isolation de l'hôte
+        # Étape 3 – Isolation de l'hôte (Appel réel API Mock EDR)
         host = event.get("host", "UNKNOWN")
-        result.actions_taken.append(self._step(
-            "3. Isolation réseau de l'hôte",
-            f"✅ Commande d'isolation envoyée pour {host} "
-            f"(simulation – en prod: API EDR/Firewall)"
-        ))
+        try:
+            import requests
+            resp = requests.post(f"http://127.0.0.1:8080/api/v1/hosts/{host}/isolate", timeout=1.5)
+            if resp.status_code == 200:
+                detail = f"✅ [API EDR MOCK] Hôte {host} isolé avec succès du réseau (Code 200)"
+            else:
+                detail = f"⚠️ [API EDR MOCK] Erreur lors de l'isolation (Code {resp.status_code})"
+        except Exception:
+            detail = f"✅ Commande d'isolation envoyée pour {host} (Simulation hors-ligne EDR)"
+
+        result.actions_taken.append(self._step("3. Isolation réseau de l'hôte", detail))
 
         # Étape 4 – Suspension du compte utilisateur
         result.actions_taken.append(self._step(
@@ -355,11 +361,18 @@ class SOAREngine:
         # Étape 2 – CTI sur l'URL
         self._cti_check(url, "url", result)
 
-        # Étape 3 – Suppression de l'email
-        result.actions_taken.append(self._step(
-            "3. Suppression de l'email malveillant",
-            f"✅ Email supprimé des boîtes de réception (simulation API messagerie)"
-        ))
+        # Étape 3 – Suppression de l'email (Appel réel API Mock O365)
+        try:
+            import requests
+            resp = requests.post(f"http://127.0.0.1:8080/api/v1/emails/delete?recipient={user}", timeout=1.5)
+            if resp.status_code == 200:
+                detail = f"✅ [API MAIL MOCK] Email malveillant supprimé de la boîte de {user} (Code 200)"
+            else:
+                detail = f"⚠️ [API MAIL MOCK] Erreur suppression email (Code {resp.status_code})"
+        except Exception:
+            detail = f"✅ Email supprimé des boîtes de réception (Simulation hors-ligne Messagerie)"
+
+        result.actions_taken.append(self._step("3. Suppression de l'email malveillant", detail))
 
         # Étape 4 – Réinitialisation MDP (si clic détecté)
         if alert.rule_id == "100012":
@@ -399,16 +412,29 @@ class SOAREngine:
         # CTI sur l'IP suspecte
         self._cti_check(event.get("second_login_ip", event.get("source_ip")), "ip", result)
 
+        # Étape 3 & 4 – Actions IAM via API Active Directory / Entra
+        try:
+            import requests
+            resp = requests.post(f"http://127.0.0.1:8080/api/v1/users/{username}/reset_password", timeout=1.5)
+            if resp.status_code == 200:
+                detail_block = f"✅ [API IAM MOCK] Session depuis {city2} révoquée pour {username}"
+                detail_mfa   = f"✅ [API IAM MOCK] MDP réinitialisé & MFA forcé pour {username}"
+            else:
+                detail_block = detail_mfa = f"⚠️ [API IAM MOCK] Erreur API (Code {resp.status_code})"
+        except Exception:
+            detail_block = f"✅ Session depuis {city2} révoquée pour {username} (Simulation hors-ligne)"
+            detail_mfa   = f"✅ MFA obligatoire activé pour {username} – Réinitialisation MDP (Simulation)"
+
         # Blocage de la session
         result.actions_taken.append(self._step(
             "3. Blocage de la session suspecte",
-            f"✅ Session depuis {city2} révoquée pour {username}"
+            detail_block
         ))
 
         # Forcer MFA
         result.actions_taken.append(self._step(
             "4. Forçage du MFA",
-            f"✅ MFA obligatoire activé pour {username} – Réinitialisation MDP"
+            detail_mfa
         ))
 
         # Alerte VIP si compte sensible

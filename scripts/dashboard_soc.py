@@ -13,7 +13,8 @@ st.title("🛡️ Portail SOC - Surveillance & Réponse (Assurances)")
 st.markdown("---")
 
 # Récupérer les rapports générés (triés par date, le plus récent en premier)
-json_files = sorted(glob.glob(os.path.join(REPORTS_DIR, "*.json")), reverse=True)
+# On filtre uniquement sur thehive_case_*.json pour ne pas inclure les rapports CTI
+json_files = sorted(glob.glob(os.path.join(REPORTS_DIR, "thehive_case_*.json")), reverse=True)
 
 if not json_files:
     st.warning("⚠️ Aucun incident détecté. Exécutez `soc_engine.py` pour générer des alertes de sécurité.")

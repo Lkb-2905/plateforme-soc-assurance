@@ -31,11 +31,12 @@
 4. [📊 Fonctionnalités Clés & Dashboard](#-fonctionnalités-clés--dashboard-exécutif)
 5. [📡 Module CTI Open-Source](#-module-cti-open-source)
 6. [⚖️ Scoring Assurantiel & Compliance RGPD](#️-scoring-assurantiel--compliance-rgpd)
-7. [🌪️ Défis & Intempéries Rencontrées](#️-défis--intempéries-rencontrées)
-8. [🛠️ Technologies Utilisées](#️-technologies-utilisées)
-9. [🚀 Guide d'Installation & Run Book](#-guide-dinstallation--run-book)
-10. [✨ Qualité & Best Practices](#-qualité--best-practices)
-11. [🗺️ Roadmap & Évolutions](#️-roadmap--évolutions)
+7. [☁️ Module Cloud — Microsoft Sentinel & Sigma Rules](#️-module-cloud--microsoft-sentinel--sigma-rules)
+8. [🌪️ Défis & Intempéries Rencontrées](#️-défis--intempéries-rencontrées)
+9. [🛠️ Technologies Utilisées](#️-technologies-utilisées)
+10. [🚀 Guide d'Installation & Run Book](#-guide-dinstallation--run-book)
+11. [✨ Qualité & Best Practices](#-qualité--best-practices)
+12. [🗺️ Roadmap & Évolutions](#️-roadmap--évolutions)
 
 ---
 

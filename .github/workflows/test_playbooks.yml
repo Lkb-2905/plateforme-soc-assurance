@@ -1,0 +1,22 @@
+name: SOC Platform — Tests d'intégrité des Playbooks
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  test-soc-engine:
+    name: 🛡️ Vérification du Moteur SIEM/SOAR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: ✅ Test structure du projet
+        run: |
+          test -f scripts/soc_engine.py && echo "✅ soc_engine.py" || exit 1
+          test -f scripts/mock_edr_api.py && echo "✅ mock_edr_api.py" || exit 1
+          test -f scripts/dashboard_soc.py && echo "✅ dashboard_soc.py" || exit 1
+          test -f attck/coverage_layer.json && echo "✅ MITRE ATT&CK layer" || exit 1

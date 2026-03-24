@@ -58,63 +58,67 @@ Ce projet est un **démonstrateur complet d'ingénierie Cybersécurité** orient
 
 ## 🏗️ Architecture du Projet
 
+> **Lecture du diagramme :** Le schéma ci-dessous représente l'**architecture de référence industrielle** (ce que ce projet deviendrait en production). Le tableau de correspondance qui suit explique comment chaque composant du schéma a été **implémenté ou substitué** dans ce démonstrateur Python.
+
 <p align="center">
-  <img src="soc_architecture_globale.svg" alt="Architecture Globale SOC" width="850">
+  <img src="soc_architecture_globale.svg" alt="Architecture de Référence SOC" width="850">
 </p>
 
-### Les 5 Couches de la Plateforme
+### Correspondance Architecture Cible ↔ Implémentation Réelle
+
+| Couche SVG | Composant Industriel (Schéma) | ✅ Implémentation du Projet | Fichier(s) |
+| :--- | :--- | :--- | :--- |
+| **Couche 1** | Sources métier assurantielles | Simulateurs Python injectant des Payloads JSON réalistes | `scripts/simulators/` |
+| **Couche 2** | Wazuh SIEM (Docker + Kibana) | **Moteur SIEM Python** avec règles de corrélation Sigma-like | `scripts/soc_engine.py` |
+| **Couche 3 — CTI** | OpenCTI / MISP + CERT-FR | **AlienVault OTX** (API publique) + **CISA KEV** (Gouvernement US) | `scripts/cti/` |
+| **Couche 3 — SOAR** | Shuffle SOAR / n8n | **SOAREngine Python** avec 3 Playbooks métier complets | `scripts/soc_engine.py` |
+| **Couche 3 — ITSM** | ServiceNow (Ticket auto) | **Export TheHive JSON** (format ITSM standard SOC) | `scripts/generate_report.py` |
+| **Couche 4** | Playbooks SOAR visuels | **Playbooks Python** appelant l'API Mock via HTTP | `scripts/soc_engine.py` |
+| **Couche 5 — Dashboard** | Grafana / Kibana | **Streamlit** (Dashboard Web localhost interactif) | `scripts/dashboard_soc.py` |
+| **Couche 5 — ATT&CK** | MITRE ATT&CK Navigator | **Layer JSON prêt à l'emploi** (14 techniques scorées) | `attck/coverage_layer.json` |
+
+> 💡 **Pourquoi cette substitution ?** L'objectif est de prouver la **faisabilité technique complète** de chaque couche sans dépendances lourdes (Docker, licences). Chaque substitution est réversible : brancher le SIEM Python sur Wazuh ou le SOAR sur Shuffle ne demande qu'un changement de l'endpoint HTTP.
+
+### Les 5 Couches de l'Implémentation
 
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃  COUCHE 1 — SOURCES DE DONNÉES (Simulation assurantielle)        ┃
-┃  [Portail Courtiers] [Gestion Sinistres] [AD/IAM] [Firewall]    ┃
-┗━━━━━━━━━━━━━━━━━━━━━┫ Payloads JSON ┣━━━━━━━━━━━━━━┛
+┃  COUCHE 1 — SOURCES DE DONNÉES (Simulation assurantielle)   ┃
+┃  [Portail Courtiers] [Gestion Sinistres] [AD/IAM] [Firewall]┃
+┗━━━━━━━━━━━━━━━━━━━━━┫ Payloads JSON ┣━━━━━━━━━━━━━━━━━━━━━━┛
                               ┃
                               ▼
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃  COUCHE 2 — SIEM (Moteur de Détection Python)                   ┃
-┃  • Parsing des logs • Règles de corrélation MITRE ATT&CK          ┃
-┃  • Détection Bruteforce (fréquence) • Génération d'Alertes         ┃
-┗━━━━┫ Alerte ┣━━━━━━━━━━━━┫ CTI OTX ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-          ┃                       ┃
-          ▼                       ▼
-┏━━━━━━━━━━━━━━━━━┓   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃  COUCHE 3A   ┃   ┃  COUCHE 3B — SOAR (Orchestration)             ┃
-┃  CTI / OTX   ┃   ┃  • Playbook Ransomware T1486 (EDR + RSSI)   ┃
-┃  CISA KEV    ┃↔┃  • Playbook Phishing T1566 (Mail API)       ┃
-┃  IOC Lookup  ┃   ┃  • Playbook Compromission IAM T1078 (AD API)┃
-┗━━━━━━━━━━━━━━━━━┛   ┗━━━━━┫ HTTP POST ┣━━━━━━━━━━━━━━━━━━━━━━━━┛
-                                   ┃
-                                   ▼
-                    ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 2 — SIEM Python  [= Wazuh en production]            ┃
+┃  • Parsing des logs • Règles de corrélation MITRE ATT&CK    ┃
+┃  • Détection Bruteforce (fréquence) • Génération d'Alertes  ┃
+┗━━━━┫ Alerte ┣━━━━━━━━━━━━━━━┫ CTI OTX ┣━━━━━━━━━━━━━━━━━━━┛
+          ┃                             ┃
+          ▼                             ▼
+┏━━━━━━━━━━━━━━━━━┓   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 3A      ┃   ┃  COUCHE 3B — SOAR  [= Shuffle SOAR] ┃
+┃  CTI / OTX      ┃   ┃  • Playbook Ransomware T1486         ┃
+┃  CISA KEV       ┃↔┃  • Playbook Phishing T1566            ┃
+┃  IOC Lookup     ┃   ┃  • Playbook Compromission IAM T1078  ┃
+┗━━━━━━━━━━━━━━━━━┛   ┗━━━━━━━━━┫ HTTP POST ┣━━━━━━━━━━━━━━┛
+                                         ┃
+                                         ▼
+                    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
                     ┃  COUCHE 4 — API MOCK (FastAPI)  ┃
+                    ┃  [= CrowdStrike / Okta / M365]  ┃
                     ┃  :8080  EDR | AD/IAM | Mail GW  ┃
-                    ┗━━━━━┫ 200 OK ┣━━━━━━━━━━━━┛
-                              ┃
-                              ▼
+                    ┗━━━━━━━━━━┫ 200 OK ┣━━━━━━━━━━━┛
+                                         ┃
+                                         ▼
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃  COUCHE 5 — REPORTING & OBSERVABILITÉ                           ┃
-┃  [Rapport MD]  [Ticket TheHive JSON]  [Dashboard Streamlit]     ┃
-┃  [MITRE ATT&CK Navigator]  [SOP Documentaire]  [KPIs MTTD/MTTR] ┃
+┃  COUCHE 5 — REPORTING & OBSERVABILITÉ  [= Grafana / Kibana] ┃
+┃  [Rapport MD] [Ticket TheHive JSON] [Dashboard Streamlit]   ┃
+┃  [MITRE ATT&CK Navigator]  [SOP]  [KPIs MTTD/MTTR]         ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
-### Composants & Fichiers clés
-
-| Couche | Fichier | Rôle |
-| :--- | :--- | :--- |
-| **SIEM** | `scripts/soc_engine.py` | Moteur principal : parsing, corrélation, alerting |
-| **Simulateurs** | `scripts/simulators/` | Générateurs d'événements (ransomware, phishing, IAM) |
-| **SOAR** | `scripts/soc_engine.py (SOAREngine)` | Orchestrateur des playbooks de réponse |
-| **API Mock** | `scripts/mock_edr_api.py` | Serveur FastAPI simulant EDR + AD + Mail |
-| **CTI** | `scripts/cti/` | OTX IOC lookup + CISA KEV puller |
-| **Reporting** | `scripts/generate_report.py` | Rapports MD + tickets TheHive JSON |
-| **Dashboard** | `scripts/dashboard_soc.py` | Portail Streamlit (Incidents + CTI) |
-| **ATT&CK** | `attck/coverage_layer.json` | Heatmap Navigator (14 techniques) |
-| **SOP** | `docs/SOP_Reponse_Incident.md` | Procédures opérationnelles SOC |
-| **CI/CD** | `.github/workflows/test_playbooks.yml` | Pipeline GitHub Actions |
-
 ---
+
 
 ## 📈 Scénarios d'Incidents & Playbooks SOAR
 

@@ -180,15 +180,17 @@ C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\cti\cisa_kev_pu
   <img src="roadmap_implementation.svg" alt="Roadmap d'implémentation" width="850">
 </p>
 
-**Version Actuelle : 3.0.0 Enterprise ✅**
-*   Moteur SIEM/SOAR Python complet.
-*   API réseau simulée (FastAPI).
-*   Génération de Rapports PDf/MD + Tickets TheHive.
+**Version Actuelle : 4.0.0 (Release Entretien) ✅**
+*   **Moteur SIEM/SOAR Python** asynchrone fonctionnel.
+*   **Mocking API REST (FastAPI)** simulant un EDR et l'Active Directory.
+*   **Executive Dashboard Web (Streamlit)** avec calculs de MTTD/MTTR.
+*   **Module de Risque Assurantiel** (Détection Fuite RGPD & Déclaration CNIL 72h).
+*   **Threat Intelligence Active** (Interrogation API AlienVault OTX & CISA KEV).
 
-**Version 4.0.0 (Vision Long Terme) 🔮**
-*   Refonte des règles Python pures vers un parseur YAML "Sigma Rules".
-*   Génération d'Exports STIX 2.1 complets pour l'Intelligence Threat.
-*   Passage à la librairie `asyncio` pour la totalité du SIEM afin de supporter >100.000 EPS.
+**Prochains Sprints (Vision Industrielle) 🔮**
+*   **ITSM ServiceNow** : Remplacer l'export TheHive actuel par un push API direct vers un vrai ServiceNow.
+*   **Standardisation CACAO / STIX 2.1** : Pousser la formalisation des playbooks vers le standard CACAO de l'OASIS.
+*   **CI/CD DevSecOps** : Intégration de tests de non-régression (GitHub Actions) validant la résilience des Playbooks.
 
 ---
 

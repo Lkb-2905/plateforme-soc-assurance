@@ -62,26 +62,57 @@ Ce projet est un **démonstrateur complet d'ingénierie Cybersécurité** orient
   <img src="soc_architecture_globale.svg" alt="Architecture Globale SOC" width="850">
 </p>
 
-### Flux de traitement (Detect → Contain → Report)
+### Les 5 Couches de la Plateforme
 
 ```
-[Simulateurs d'Attaques]
-        │ Payloads JSON d'événements malveillants
-        ▼
-[Moteur SIEM Python]  ←── Règles MITRE ATT&CK (T1486, T1566, T1078)
-        │ Alerte générée
-        ▼
-[Moteur SOAR Python]  ←── Enrichissement CTI (AlienVault OTX)
-        │ Requêtes HTTP de remédiation
-        ▼
-[API Mock EDR/AD/Mail] (FastAPI sur port 8080)
-        │ Réponse 200 OK (Isoler / Reset / Supprimer)
-        ▼
-[Reporting Incident]  ──► Rapport Markdown/PDF + Ticket TheHive JSON
-        │
-        ▼
-[Dashboard Streamlit] ──► KPIs | Observables CTI | Risque RGPD | SOP
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 1 — SOURCES DE DONNÉES (Simulation assurantielle)        ┃
+┃  [Portail Courtiers] [Gestion Sinistres] [AD/IAM] [Firewall]    ┃
+┗━━━━━━━━━━━━━━━━━━━━━┫ Payloads JSON ┣━━━━━━━━━━━━━━┛
+                              ┃
+                              ▼
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 2 — SIEM (Moteur de Détection Python)                   ┃
+┃  • Parsing des logs • Règles de corrélation MITRE ATT&CK          ┃
+┃  • Détection Bruteforce (fréquence) • Génération d'Alertes         ┃
+┗━━━━┫ Alerte ┣━━━━━━━━━━━━┫ CTI OTX ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+          ┃                       ┃
+          ▼                       ▼
+┏━━━━━━━━━━━━━━━━━┓   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 3A   ┃   ┃  COUCHE 3B — SOAR (Orchestration)             ┃
+┃  CTI / OTX   ┃   ┃  • Playbook Ransomware T1486 (EDR + RSSI)   ┃
+┃  CISA KEV    ┃↔┃  • Playbook Phishing T1566 (Mail API)       ┃
+┃  IOC Lookup  ┃   ┃  • Playbook Compromission IAM T1078 (AD API)┃
+┗━━━━━━━━━━━━━━━━━┛   ┗━━━━━┫ HTTP POST ┣━━━━━━━━━━━━━━━━━━━━━━━━┛
+                                   ┃
+                                   ▼
+                    ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+                    ┃  COUCHE 4 — API MOCK (FastAPI)  ┃
+                    ┃  :8080  EDR | AD/IAM | Mail GW  ┃
+                    ┗━━━━━┫ 200 OK ┣━━━━━━━━━━━━┛
+                              ┃
+                              ▼
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COUCHE 5 — REPORTING & OBSERVABILITÉ                           ┃
+┃  [Rapport MD]  [Ticket TheHive JSON]  [Dashboard Streamlit]     ┃
+┃  [MITRE ATT&CK Navigator]  [SOP Documentaire]  [KPIs MTTD/MTTR] ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
+
+### Composants & Fichiers clés
+
+| Couche | Fichier | Rôle |
+| :--- | :--- | :--- |
+| **SIEM** | `scripts/soc_engine.py` | Moteur principal : parsing, corrélation, alerting |
+| **Simulateurs** | `scripts/simulators/` | Générateurs d'événements (ransomware, phishing, IAM) |
+| **SOAR** | `scripts/soc_engine.py (SOAREngine)` | Orchestrateur des playbooks de réponse |
+| **API Mock** | `scripts/mock_edr_api.py` | Serveur FastAPI simulant EDR + AD + Mail |
+| **CTI** | `scripts/cti/` | OTX IOC lookup + CISA KEV puller |
+| **Reporting** | `scripts/generate_report.py` | Rapports MD + tickets TheHive JSON |
+| **Dashboard** | `scripts/dashboard_soc.py` | Portail Streamlit (Incidents + CTI) |
+| **ATT&CK** | `attck/coverage_layer.json` | Heatmap Navigator (14 techniques) |
+| **SOP** | `docs/SOP_Reponse_Incident.md` | Procédures opérationnelles SOC |
+| **CI/CD** | `.github/workflows/test_playbooks.yml` | Pipeline GitHub Actions |
 
 ---
 
@@ -265,19 +296,46 @@ python scripts/cti/cisa_kev_puller.py
   <img src="roadmap_implementation.svg" alt="Roadmap d'implémentation" width="850">
 </p>
 
-**Version Actuelle : `4.0.0 Enterprise` ✅**
-- ✅ Moteur SIEM/SOAR Python asynchrone fonctionnel
-- ✅ API Mock EDR/Active Directory (FastAPI) avec appels HTTP réels
-- ✅ Dashboard Streamlit interactif (Onglets Incidents + CTI)
-- ✅ Scoring de risque assurantiel (Contrats exposés, RGPD, CNIL 72h)
-- ✅ Threat Intelligence Live (AlienVault OTX + CISA KEV)
-- ✅ Export TheHive JSON avec Custom Fields MTTD/MTTR
+### Sprint 1 — Crédibilité immédiate `✅ 100% TERMINÉ`
 
-**Vision Industrielle (Sprints Futurs) 🔮**
-- 🔲 **ITSM ServiceNow :** Push API direct vers un ticket ServiceNow pour workflow de validation humaine
-- 🔲 **Standard CACAO / STIX 2.1 :** Formalisation des Playbooks selon le standard OASIS industriel
-- 🔲 **CI/CD DevSecOps :** GitHub Actions testant automatiquement la résilience des playbooks
-- 🔲 **Sigma Rules YAML :** Migration des règles Python vers un parseur Sigma standard
+| Élément | Statut | Fichier |
+| :--- | :---: | :--- |
+| Feed CISA KEV + CTI OTX en temps réel | ✅ | `scripts/cti/cisa_kev_puller.py` |
+| Scénarios Assurance (Portail Courtier, RGPD, CNIL 72h) | ✅ | `scripts/simulators/` |
+| Dashboard visuel MTTD/MTTR localhost | ✅ | `scripts/dashboard_soc.py` |
+
+### Sprint 2 — Profondeur technique `🟡 75% EN COURS`
+
+| Élément | Statut | Commentaire |
+| :--- | :---: | :--- |
+| SIEM Python collège avec règles Sigma-like | ✅ | Implémenté en natif Python (sans Wazuh) |
+| SOAR avec Playbooks automatiques | ✅ | 3 Playbooks complets avec appels API |
+| Enrichissement OTX (IOC lookup) | ✅ | `scripts/cti/otx_ioc_lookup.py` |
+| MITRE ATT&CK mapping + Heatmap Navigator | ✅ | `attck/coverage_layer.json` (14 techniques) |
+| Wazuh Docker (SIEM réel) | ⏳ | Archivé en `legacy_docker_infrastructure/` |
+| Shuffle SOAR / n8n | ⏳ | Remplacé par SOAR Python (plus agile) |
+
+### Sprint 3 — Industrialisation ITSM & Scoring `🟠 80% EN COURS`
+
+| Élément | Statut | Commentaire |
+| :--- | :---: | :--- |
+| Scoring assurantiel (Contrats / RGPD / Exposition) | ✅ | Intégré dans les Playbooks |
+| Notification CNIL 72h (Playbook réglementaire) | ✅ | Tâche auto dans TheHive JSON |
+| Export TheHive JSON (Custom Fields MTTD/MTTR) | ✅ | `scripts/generate_report.py` |
+| Push ServiceNow ITSM (Ticket auto) | 🔲 | Vision : remplacer l'export TheHive |
+
+### Sprint 4 — Maturité ingénierie DevSecOps `🟠 70% EN COURS`
+
+| Élément | Statut | Commentaire |
+| :--- | :---: | :--- |
+| CI/CD GitHub Actions (tests intégrité Playbooks) | ✅ | `.github/workflows/test_playbooks.yml` |
+| KPIs mesurés MTTD/MTTR | ✅ | Dashboard + Custom Fields TheHive |
+| Standard CACAO (Format industriel Playbooks) | 🔲 | Vision : formaliser en JSON CACAO/OASIS |
+| Sigma Rules YAML | 🔲 | Vision : migrer les règles Python vers YAML |
+
+---
+
+> **Légende :** ✅ Terminé &nbsp;|&nbsp; ⏳ Remplacé / Alt Alternative imprémentée &nbsp;|&nbsp; 🔲 Vision long terme
 
 ---
 

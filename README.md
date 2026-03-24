@@ -122,46 +122,45 @@ La construction de cette plateforme sans reposer sur des solutions pré-packagé
 
 ## 🚀 COMMENT UTILISER CE PROJET (RUN BOOK)
 
-⚠️ **Pré-requis Windows :** Afin d'éviter les conflits avec `MinGW` ou d'autres installations de Python, toutes les commandes ci-dessous utilisent consciencieusement l'interpréteur virtuel `pyenv` pour une exécution parfaite.
+> **Pré-requis :** Python 3.10+ installé. Sur Windows, vérifiez que la commande `python` pointe vers le bon interpréteur (ex: via `pyenv` ou le Python officiel de python.org).
 
-### 1. Préparation de l'environnement
-Installez l'ensemble des dépendances (FastAPI, Streamlit, etc.) en une commande :
-```powershell
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe -m pip install fastapi uvicorn requests jinja2 colorlog pydantic streamlit
+### 📦 1. Installation des dépendances
+
+```bash
+pip install -r requirements.txt
 ```
 
-### 2. Démarrage du Serveur de Sécurité Mock (Terminal 1)
-Ouvrez un premier terminal pour allumer l'API EDR / Pare-feu qui va recevoir les ordres tactiques de coupure venant du SOAR :
-```powershell
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\mock_edr_api.py
+### 🌐 2. Démarrage du Serveur de Sécurité Mock (Terminal 1)
+Allumez l'API EDR / Active Directory simulant les équipements de sécurité. Laissez-la ouverte.
+```bash
+python scripts/mock_edr_api.py
 ```
-*(Le serveur doit rester ouvert en arrière-plan et écoute sur le port 8080)*
+*(Écoute sur `http://127.0.0.1:8080`)*
 
-### 3. Exécution d'une Cyberattaque et de la Réponse Automatisée (Terminal 2)
-Ouvrez un second terminal pour simuler une tentative d'intrusion ("Ransomware" ou "Phishing"). Le système SIEM va générer l'alerte en temps réel, et le SOAR prendra les mesures correctives via l'API :
-```powershell
-# Au choix : Actionner le Ransomware T1486
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\soc_engine.py --scenario ransomware
+### 🛡️ 3. Simulation d'une Cyberattaque (Terminal 2)
+Déclenchement du scénario : le SIEM détecte, le SOAR répond et interagit en direct avec le Terminal 1.
+```bash
+# Scénario Ransomware (T1486 - Data Encrypted for Impact)
+python scripts/soc_engine.py --scenario ransomware
 
-# Au choix : Actionner le Phishing Assurantiel T1566.001
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\soc_engine.py --scenario phishing
+# Scénario Phishing Assurantiel (T1566.001 - Spearphishing Link)
+python scripts/soc_engine.py --scenario phishing
 ```
 
-### 4. Lancement du SOC Executive Dashboard (Terminal 3)
-Ouvrez un troisième terminal pour lancer l'interface web de votre "Centre de Contrôle" qui agrège les JSON générés par TheHive :
-```powershell
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe -m streamlit run scripts\dashboard_soc.py
+### 📊 4. SOC Executive Dashboard (Terminal 3)
+Portail Web interactif agrégeant les tickets TheHive, métriques et CTI.
+```bash
+python -m streamlit run scripts/dashboard_soc.py
 ```
-*(Le navigateur web s'ouvrira automatiquement sur http://localhost:8501)*
+*(Navigateur : `http://localhost:8501`)*
 
-### 5. Exécution de la Cyber-Veille Ouverte / CTI (N'importe quel terminal)
-Pour interroger les bases d'Intel et peupler le second onglet de votre application Web en analysant mondialement vos IOCs :
-```powershell
-# Renseignement IP / Campagnes avec l'API publique AlienVault OTX
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\cti\otx_ioc_lookup.py
+### 📡 5. Cyber-Veille CTI Open-Source (facultatif)
+```bash
+# Enrichissement IP via AlienVault OTX (API publique mondiale)
+python scripts/cti/otx_ioc_lookup.py
 
-# Alerte Vulnérabilités gouvernementales The CISA KEV (Known Exploited Vulnerabilities)
-C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\cti\cisa_kev_puller.py
+# Bulletins gouvernementaux CISA KEV (Known Exploited Vulnerabilities)
+python scripts/cti/cisa_kev_puller.py
 ```
 
 ---
@@ -171,6 +170,7 @@ C:\Users\pc\.pyenv\pyenv-win\versions\3.12.10\python.exe scripts\cti\cisa_kev_pu
 *   **Ingénierie Logicielle :** Utilisation intensive des `dataclasses` Python pour modéliser précisément les objets de sécurité (Alerte, IOC, Observables).
 *   **Logging Professionnel :** Implémentation de `colorlog` pour des niveaux de criticité lisibles par la supervision.
 *   **Dégradation Gracieuse :** Mise en place d'un mode "hors-ligne" sur les Playbooks si l'API vient à tomber ("Fail-Safe").
+*   **Documentation Opérationnelle SOC :** Les Standard Operating Procedures (SOP) sont entièrement rédigées et disponibles dans [`docs/SOP_Reponse_Incident.md`](docs/SOP_Reponse_Incident.md) — reproduisant les standards procéduraux d'un SOC de Groupe.
 
 ---
 

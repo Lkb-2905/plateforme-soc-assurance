@@ -1,0 +1,90 @@
+{
+    "timestamp": "2026-03-24T07:44:14.648410",
+    "critical_assets_at_risk": 12,
+    "cve_list": [
+        {
+            "cve_id": "CVE-2019-6693",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS Use of Hard-Coded Credentials Vulnerability",
+            "action_due_date": "2025-07-16",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2025-24472",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS and FortiProxy Authentication Bypass Vulnerability",
+            "action_due_date": "2025-04-08",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2024-55591",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS and FortiProxy Authentication Bypass Vulnerability",
+            "action_due_date": "2025-01-21",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2021-31196",
+            "asset_impacted": "Exchange Server",
+            "vulnerability_name": "Microsoft Exchange Server Information Disclosure Vulnerability",
+            "action_due_date": "2024-09-11",
+            "ransomware_campaign_use": "Unknown"
+        },
+        {
+            "cve_id": "CVE-2024-21410",
+            "asset_impacted": "Exchange Server",
+            "vulnerability_name": "Microsoft Exchange Server Privilege Escalation Vulnerability",
+            "action_due_date": "2024-03-07",
+            "ransomware_campaign_use": "Unknown"
+        },
+        {
+            "cve_id": "CVE-2024-21762",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS Out-of-Bound Write Vulnerability",
+            "action_due_date": "2024-02-16",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2023-22527",
+            "asset_impacted": "Confluence",
+            "vulnerability_name": "Atlassian Confluence Data Center and Server Template Injection Vulnerability",
+            "action_due_date": "2024-02-14",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2023-22518",
+            "asset_impacted": "Confluence",
+            "vulnerability_name": "Atlassian Confluence Data Center and Server Improper Authorization Vulnerability",
+            "action_due_date": "2023-11-28",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2023-22515",
+            "asset_impacted": "Confluence",
+            "vulnerability_name": "Atlassian Confluence Data Center and Server Broken Access Control Vulnerability",
+            "action_due_date": "2023-10-13",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2023-27997",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS and FortiProxy SSL-VPN Heap-Based Buffer Overflow Vulnerability",
+            "action_due_date": "2023-07-04",
+            "ransomware_campaign_use": "Known"
+        },
+        {
+            "cve_id": "CVE-2022-41328",
+            "asset_impacted": "FortiOS",
+            "vulnerability_name": "Fortinet FortiOS Path Traversal Vulnerability",
+            "action_due_date": "2023-04-04",
+            "ransomware_campaign_use": "Unknown"
+        },
+        {
+            "cve_id": "CVE-2022-41080",
+            "asset_impacted": "Exchange Server",
+            "vulnerability_name": "Microsoft Exchange Server Privilege Escalation Vulnerability",
+            "action_due_date": "2023-01-31",
+            "ransomware_campaign_use": "Known"
+        }
+    ]
+}

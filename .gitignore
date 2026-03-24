@@ -9,9 +9,16 @@
 config/wazuh/ssl/
 config/shuffle/secrets/
 
-# ── Rapports générés (ne pas versionner) ────
-reports/generated/
+# ── Rapports générés (ne pas versionner les doublons) ───────
+# On expose les rapports de démo sur Github pour la présentation
+!reports/generated/*.md
+!reports/generated/*.json
 *.pdf
+
+# ── Python cache ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
 
 # ── Python ───────────────────────────────────
 __pycache__/

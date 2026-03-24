@@ -1,0 +1,72 @@
+{
+    "title": "[RANSOMWARE] INC-2026-0324-70047C",
+    "description": "Une attaque ransomware a été détectée et contenue sur le serveur de fichiers SRVFILE-22 hébergeant des données de contrats et de sinistres. Le malware, identifié comme une variante de CONTI, a chiffré 23 fichiers avant d'être stoppé par l'action de confinement automatisée déclenchée par le playbook SOAR. Aucune donnée n'a été exfiltrée. Le vecteur d'entrée initial était une macro malveillante dans un document Word reçu par email.\n\n**Impact Business**: Interruption temporaire d'accès au partage /data/contrats/ (47 min). Données de 12 dossiers sinistres affectées, sauvegardées et restaurées.\n**Scoring Assurantiel**: Typologie: Contrats Habitation / Auto | Contrats exposés: 14200",
+    "severity": 4,
+    "tlp": 2,
+    "pap": 2,
+    "tags": [
+        "Ransomware",
+        "Automated-SOAR",
+        "High-Priority"
+    ],
+    "customFields": {
+        "mttd": {
+            "order": 1,
+            "string": "1 min 42 sec"
+        },
+        "mttr": {
+            "order": 2,
+            "string": "6 min 15 sec"
+        },
+        "gdpr_exposed": {
+            "order": 3,
+            "boolean": true
+        },
+        "cnil_deadline": {
+            "order": 4,
+            "integer": 72
+        }
+    },
+    "tasks": [
+        {
+            "title": "1. Validation de l'Alerte SIEM",
+            "status": "Waiting",
+            "group": "Triage"
+        },
+        {
+            "title": "2. Vérification de l'endiguement SOAR (EDR/AD)",
+            "status": "Waiting",
+            "group": "Remediation"
+        },
+        {
+            "title": "3. Remédiation complète & Restauration",
+            "status": "Waiting",
+            "group": "Recovery"
+        },
+        {
+            "title": "4. ⚖️ Protocole Réglementaire : Vérification Fuite RGPD (Délai CNIL 72H)",
+            "status": "Waiting",
+            "group": "Compliance"
+        }
+    ],
+    "observables": [
+        {
+            "dataType": "hash",
+            "data": "44d88612fea8a8f36de82e1278abb02f",
+            "tlp": 2,
+            "message": "Source: VirusTotal, AlienVault OTX | Score: 95"
+        },
+        {
+            "dataType": "ip",
+            "data": "185.220.101.3",
+            "tlp": 2,
+            "message": "Source: AbuseIPDB | Score: 87"
+        },
+        {
+            "dataType": "other",
+            "data": ".CONTI",
+            "tlp": 2,
+            "message": "Source: Wazuh Custom Rule | Score: 98"
+        }
+    ]
+}

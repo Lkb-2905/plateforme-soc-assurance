@@ -1,0 +1,72 @@
+{
+    "title": "[PHISHING] INC-2026-0323-936B58",
+    "description": "Une campagne de spear-phishing a été détectée ciblant le département Finance. Un email contenant une URL malveillante a été reçu par 3 utilisateurs. L'analyse CTI a confirmé le domaine malveillant. Un utilisateur a cliqué sur le lien. Le playbook SOAR a déclenché la suppression automatique de l'email et la réinitialisation préventive du mot de passe.\n\n**Impact Business**: Aucune exfiltration de données confirmée. Réinitialisation du mot de passe pour 1 utilisateur.\n**Scoring Assurantiel**: Typologie: Accès données VIP / Comptabilité | Contrats exposés: 0",
+    "severity": 2,
+    "tlp": 2,
+    "pap": 2,
+    "tags": [
+        "Phishing",
+        "Automated-SOAR",
+        "High-Priority"
+    ],
+    "customFields": {
+        "mttd": {
+            "order": 1,
+            "string": "2 min 10 sec"
+        },
+        "mttr": {
+            "order": 2,
+            "string": "14 min 30 sec"
+        },
+        "gdpr_exposed": {
+            "order": 3,
+            "boolean": false
+        },
+        "cnil_deadline": {
+            "order": 4,
+            "integer": 0
+        }
+    },
+    "tasks": [
+        {
+            "title": "1. Validation de l'Alerte SIEM",
+            "status": "Waiting",
+            "group": "Triage"
+        },
+        {
+            "title": "2. Vérification de l'endiguement SOAR (EDR/AD)",
+            "status": "Waiting",
+            "group": "Remediation"
+        },
+        {
+            "title": "3. Remédiation complète & Restauration",
+            "status": "Waiting",
+            "group": "Recovery"
+        },
+        {
+            "title": "4. ⚖️ Protocole Réglementaire : Vérification Fuite RGPD (Délai CNIL 72H)",
+            "status": "Waiting",
+            "group": "Compliance"
+        }
+    ],
+    "observables": [
+        {
+            "dataType": "other",
+            "data": "http://portail-assurance-signin.evil.com/reset",
+            "tlp": 2,
+            "message": "Source: AlienVault OTX | Score: 92"
+        },
+        {
+            "dataType": "domain",
+            "data": "portail-assurance-signin.evil.com",
+            "tlp": 2,
+            "message": "Source: AlienVault OTX | Score: 88"
+        },
+        {
+            "dataType": "ip",
+            "data": "185.220.101.5",
+            "tlp": 2,
+            "message": "Source: AbuseIPDB | Score: 81"
+        }
+    ]
+}

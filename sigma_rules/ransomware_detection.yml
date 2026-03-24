@@ -1,0 +1,96 @@
+title: Détection Ransomware — Chiffrement de Masse (SI Assurantiel)
+id: c3d4e5f6-a7b8-9012-cdef-123456789012
+status: stable
+description: |
+  Détecte les comportements de chiffrement de masse typiques d'une attaque ransomware
+  ciblant les partages réseau d'un groupe assurantiel (dossiers sinistres,
+  contrats, données clients). Basé sur les événements Windows (Sysmon + Security).
+author: KAMENI TCHOUATCHEU GAETAN BRUNEL — SOC Assurantiel v4.0
+date: 2026/03/24
+modified: 2026/03/24
+tags:
+  - attack.impact
+  - attack.t1486
+  - attack.t1490
+  - attack.defense_evasion
+  - attack.t1562.001
+  - tlp.red
+logsource:
+  category: file_event
+  product: windows
+detection:
+  # Volume anormal de renommage/chiffrement de fichiers
+  selection_extensions:
+    TargetFilename|endswith:
+      - '.encrypted'
+      - '.locked'
+      - '.crypt'
+      - '.enc'
+      - '.WNCRY'
+      - '.ryk'
+      - '.ekans'
+      - '.avos'
+  # Ciblage des partages assurantiels critiques
+  selection_paths:
+    TargetFilename|contains:
+      - '\\contrats\\'
+      - '\\sinistres\\'
+      - '\\dossiers-clients\\'
+      - '\\data\\'
+      - '\\backup\\'
+  # Processus suspects
+  selection_process:
+    Image|endswith:
+      - '\\powershell.exe'
+      - '\\cmd.exe'
+      - '\\wscript.exe'
+      - '\\cscript.exe'
+      - '\\mshta.exe'
+  condition: (selection_extensions and selection_paths) or
+             (selection_extensions and selection_process)
+falsepositives:
+  - Outils de chiffrement légitimes autorisés (BitLocker, VeraCrypt avec whitelist)
+  - Solutions de sauvegarde avec compression/chiffrement
+level: critical
+fields:
+  - TargetFilename
+  - Image
+  - User
+  - CommandLine
+  - ParentImage
+---
+title: Détection Ransomware — Tentative de Désactivation des Sauvegardes
+id: d4e5f6a7-b8c9-0123-def0-234567890123
+status: stable
+description: |
+  Détecte les tentatives de suppression des Shadow Copies Windows et de désactivation
+  des mécanismes de sauvegarde, précédant souvent le déploiement du ransomware.
+author: KAMENI TCHOUATCHEU GAETAN BRUNEL — SOC Assurantiel v4.0
+date: 2026/03/24
+tags:
+  - attack.impact
+  - attack.t1490
+  - attack.t1486
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_vssadmin:
+    CommandLine|contains|all:
+      - 'vssadmin'
+      - 'delete'
+      - 'shadows'
+  selection_wmic:
+    CommandLine|contains|all:
+      - 'wmic'
+      - 'shadowcopy'
+      - 'delete'
+  selection_bcdedit:
+    CommandLine|contains|all:
+      - 'bcdedit'
+      - 'recoveryenabled'
+      - 'no'
+  condition: selection_vssadmin or selection_wmic or selection_bcdedit
+falsepositives:
+  - Scripts de maintenance système autorisés et documentés
+level: critical

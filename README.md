@@ -1,13 +1,14 @@
 # 🌍 DOSSIER DE CONFIGURATION D'EXPLOITATION (DCE)
 
-## ⚡ PLATEFORME SOC — SIEM Python · SOAR Automatisé · Threat Intelligence · Dashboard Exécutif
+## ⚡ PLATEFORME SOC — SIEM Python · SOAR Automatisé · Threat Intelligence · Microsoft Sentinel · Dashboard Exécutif
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/FastAPI-Mock%20EDR-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
   <img src="https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Microsoft%20Sentinel-Azure%20Cloud-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Sigma%20Rules-YAML%20Standards-yellow?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/MITRE%20ATT%26CK-T1486%20%7C%20T1566%20%7C%20T1078-red?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/TheHive-Case%20Management-F5A623?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/AlienVault%20OTX-Threat%20Intel-00ADEF?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/CISA%20KEV-Live%20Feed-blue?style=for-the-badge"/>
   <img src="https://github.com/Lkb-2905/plateforme-soc-assurance/actions/workflows/test_playbooks.yml/badge.svg" alt="SOC CI/CD Status"/>
@@ -219,6 +220,60 @@ La construction de cette plateforme sans Docker ni solutions pré-packagées a s
 
 ---
 
+## ☁️ Module Cloud — Microsoft Sentinel & Sigma Rules
+
+> Ce module élève le projet au niveau **Cloud-Native SOC** en intégrant une couche Azure réelle et les standards industriels de détection.
+
+### 🔵 Microsoft Sentinel — Ingestion d'Alertes Cloud (`scripts/cloud/azure_sentinel_connector.py`)
+
+- Connecteur Python vers **Azure Log Analytics REST API** avec authentification **HMAC-SHA256** (même mécanisme que les outils Microsoft enterprise).
+- Envoie les alertes SOC directement dans un workspace **Microsoft Sentinel** (ou Log Analytics) réel.
+- Compatible avec un **compte Azure Free Tier** (90 jours gratuits) — zéro Go logiciel à installer.
+- Requête KQL pour visualiser les alertes : `SOC_SecurityEvents_CL | order by TimeGenerated desc`
+
+```python
+# Exemple d'utilisation
+from scripts.cloud.azure_sentinel_connector import send_to_sentinel, build_soc_event
+
+event = build_soc_event(
+    incident_type   = "Ransomware",
+    severity        = "Critical",
+    source_ip       = "185.220.101.5",
+    target_host     = "SRV-CONTRATS-01",
+    mitre_tactic    = "Impact",
+    mitre_technique = "T1486 - Data Encrypted for Impact",
+    description     = "Chiffrement massif sur /data/contrats/ — EDR isolé",
+)
+send_to_sentinel([event])   # → Push vers Azure Sentinel via REST API
+```
+
+### 🟡 Sigma Rules YAML — Standard Industriel de Détection (`sigma_rules/`)
+
+Les règles de détection du SIEM sont formalisées dans le standard **Sigma** (open-source, utilisable sur Splunk, Sentinel, QRadar, Elastic SIEM).
+
+| Fichier | Tactique MITRE | Niveau | Cible |
+| :--- | :--- | :--- | :--- |
+| `phishing_detection.yml` | `T1566 / T1566.001` | 🔴 High | Proxy Web + M365 Defender |
+| `ransomware_detection.yml` | `T1486 / T1490` | 🚨 Critical | Sysmon + Windows Security |
+| `account_compromise_detection.yml` | `T1078 / T1110` | 🔴 High | Azure AD SignIn Logs |
+
+### 🟢 Ingestion de Logs Réels Windows/Sysmon (`scripts/cloud/winlog_parser.py`)
+
+- Parse des **logs Windows réels** (Event IDs standard : 4625, 4688, 4698, 1102...)
+- Catalogue de **19 Event IDs critiques** annotés MITRE ATT&CK.
+- Détection automatique des **indicateurs Ransomware** dans les lignes de commande.
+- Export JSON au format Sentinel pour ingestion cloud.
+
+```bash
+# Analyser une séquence de Kill Chain Ransomware en logs Windows réels
+python scripts/cloud/winlog_parser.py
+
+# Envoyer les alertes vers Microsoft Sentinel
+python scripts/cloud/azure_sentinel_connector.py
+```
+
+---
+
 ## 🛠️ Technologies Utilisées
 
 | Composant | Technologie | Usage |
@@ -227,6 +282,9 @@ La construction de cette plateforme sans Docker ni solutions pré-packagées a s
 | **API de Sécurité (Mock)** | FastAPI + Uvicorn | Simulation d'EDR / Active Directory / Messagerie corporate |
 | **Dashboard Analytique** | Streamlit | Portail Web interactif avec onglets Incidents + CTI |
 | **Threat Intelligence** | AlienVault OTX · CISA KEV | Enrichissement IOC et veille vulnérabilités en temps réel |
+| **Cloud SIEM** | Microsoft Sentinel / Azure Log Analytics | Ingestion d'alertes SOC via REST API HMAC-SHA256 |
+| **Détection Standard** | Sigma Rules YAML | Règles de détection portables (Splunk, Sentinel, QRadar, Elastic) |
+| **Logs Réels** | Windows Event Log · Sysmon | Parsing + corrélation MITRE ATT&CK de logs Windows réels |
 | **Reporting / Templates** | Jinja2 + Markdown | Rapports d'incident de niveau exécutif générés automatiquement |
 | **Case Management** | JSON (Format TheHive) | Tickets structurés avec Custom Fields MTTD/MTTR/RGPD |
 | **Documentation SOC** | Markdown (SOP) | Standard Operating Procedures selon les normes SOC de Groupe |

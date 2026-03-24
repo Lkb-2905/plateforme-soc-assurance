@@ -1,0 +1,88 @@
+title: Détection Compromission de Compte — Impossible Travel (VIP Assurantiel)
+id: e5f6a7b8-c9d0-1234-ef01-345678901234
+status: stable
+description: |
+  Détecte l'authentification simultanée ou quasi-simultanée d'un compte utilisateur VIP
+  depuis deux localisations géographiques mutuellement exclusives (Impossible Travel).
+  Critique pour les comptes à privilèges d'un groupe assurantiel
+  (DSI, RSSI, DAF, équipes actuariat, courtiers).
+author: KAMENI TCHOUATCHEU GAETAN BRUNEL — SOC Assurantiel v4.0
+date: 2026/03/24
+modified: 2026/03/24
+tags:
+  - attack.initial_access
+  - attack.t1078
+  - attack.t1078.002
+  - attack.lateral_movement
+  - attack.t1550.004
+  - tlp.amber
+logsource:
+  product: azure
+  service: signinlogs
+detection:
+  # Connexion depuis un pays étranger inhabituel
+  selection_foreign:
+    ResultType: 0                        # Connexion réussie
+    LocationDetails.countryOrRegion|not contains:
+      - 'France'
+      - 'Belgium'
+      - 'Switzerland'
+      - 'Luxembourg'
+  # Compte VIP haut risque
+  selection_vip:
+    UserDisplayName|contains:
+      - 'DSI'
+      - 'RSSI'
+      - 'DAF'
+      - 'Directeur'
+      - 'Admin'
+      - 'DG'
+  # Délai suspect (< 2h entre deux connexions depuis des pays différents)
+  filter_travel_time:
+    TimeDiff|lt: 7200                    # 7200 secondes = 2 heures
+  condition: selection_foreign and selection_vip
+falsepositives:
+  - Déplacements professionnels légitimes (conférences, missions client)
+  - Usage d'un VPN d'entreprise avec exit node à l'étranger
+level: high
+fields:
+  - UserPrincipalName
+  - IPAddress
+  - LocationDetails.city
+  - LocationDetails.countryOrRegion
+  - UserAgent
+  - AppDisplayName
+---
+title: Détection Compromission de Compte — Bruteforce Active Directory
+id: f6a7b8c9-d0e1-2345-f012-456789012345
+status: stable
+description: |
+  Détecte les tentatives de bruteforce sur Active Directory via l'Event ID 4625
+  (échec d'authentification). Seuil configuré pour un SI assurantiel avec
+  compte de service et authentification des courtiers externes.
+author: KAMENI TCHOUATCHEU GAETAN BRUNEL — SOC Assurantiel v4.0
+date: 2026/03/24
+tags:
+  - attack.credential_access
+  - attack.t1110
+  - attack.t1110.001
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4625                        # An account failed to log on
+    LogonType:
+      - 3                                # Network logon
+      - 10                               # RemoteInteractive (RDP)
+  timeframe: 5m
+  condition: selection | count() by TargetUserName > 5
+falsepositives:
+  - Utilisateurs ayant oublié leur mot de passe
+  - Mauvaise configuration d'application utilisant des credentials obsolètes
+level: medium
+fields:
+  - TargetUserName
+  - IpAddress
+  - WorkstationName
+  - FailureReason

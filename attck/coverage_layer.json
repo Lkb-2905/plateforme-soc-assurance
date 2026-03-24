@@ -1,0 +1,215 @@
+{
+  "name": "Plateforme SOC — Couverture de Détection v4.0",
+  "versions": {
+    "attack": "14",
+    "navigator": "4.9",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "Heatmap de couverture des règles de détection SIEM et des playbooks SOAR de la Plateforme SOC Assurantielle v4.0. Générée automatiquement depuis soc_engine.py. Auteur: KAMENI TCHOUATCHEU GAETAN BRUNEL — ESIEA 2026.",
+  "filters": {
+    "platforms": [
+      "Windows",
+      "Linux",
+      "Office 365",
+      "Azure AD"
+    ]
+  },
+  "sorting": 3,
+  "layout": {
+    "layout": "side",
+    "aggregateFunction": "average",
+    "showID": true,
+    "showName": true,
+    "showAggregateScores": true,
+    "countUnscored": false,
+    "expandedSubtechniques": "annotated"
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1566",
+      "tactic": "initial-access",
+      "color": "#e84c4c",
+      "comment": "PB-01 PHISHING: Détecté via SIEM (règle email gateway). Playbook: CTI URL lookup OTX → Suppression mail API → Reset MDP → Alerte RSSI. Notification CNIL 72h si données exposées.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": true,
+      "score": 95
+    },
+    {
+      "techniqueID": "T1566.001",
+      "tactic": "initial-access",
+      "color": "#e84c4c",
+      "comment": "Spearphishing Link — couverture complète. Analyse OTX de l'URL malveillante + isolation de la session utilisateur.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 95
+    },
+    {
+      "techniqueID": "T1566.002",
+      "tactic": "initial-access",
+      "color": "#f4a442",
+      "comment": "Spearphishing Attachment — couverture partielle via analyse d'entête mail. Hash lookup OTX disponible.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 60
+    },
+    {
+      "techniqueID": "T1486",
+      "tactic": "impact",
+      "color": "#e84c4c",
+      "comment": "PB-02 RANSOMWARE: Détecté via volume anormal de chiffrement fichier + IOC hash. Playbook: Isolation EDR (API POST) → Arrêt partage réseau /data/contrats/ → Snapshot → Cellule Crise P1.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 90
+    },
+    {
+      "techniqueID": "T1078",
+      "tactic": "initial-access",
+      "color": "#e84c4c",
+      "comment": "PB-03 COMPROMISSION VIP: Détecté via Impossible Travel + connexions hors horaires. Playbook: Révocation token AD (API) → Enforce MFA → Audit Trail → Notification P1.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": true,
+      "score": 90
+    },
+    {
+      "techniqueID": "T1078.002",
+      "tactic": "privilege-escalation",
+      "color": "#e84c4c",
+      "comment": "Domain Accounts — couverture complète via intégration AD/IAM mock.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 85
+    },
+    {
+      "techniqueID": "T1110",
+      "tactic": "credential-access",
+      "color": "#f4a442",
+      "comment": "Brute Force — règle SIEM de corrélation sur fréquence (>5 tentatives/min sur même compte). Alerte automatique générée.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": true,
+      "score": 80
+    },
+    {
+      "techniqueID": "T1110.001",
+      "tactic": "credential-access",
+      "color": "#f4a442",
+      "comment": "Password Guessing — corrélation fréquence SIEM active.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 75
+    },
+    {
+      "techniqueID": "T1071",
+      "tactic": "command-and-control",
+      "color": "#f4a442",
+      "comment": "Application Layer Protocol — CTI OTX lookup sur IPs suspectes. Détection via analyse des logs réseau.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 65
+    },
+    {
+      "techniqueID": "T1190",
+      "tactic": "initial-access",
+      "color": "#f4a442",
+      "comment": "Exploit Public-Facing Application — couverture CISA KEV. Le bulletin automatisé corrèle les CVEs actives avec les actifs du SI (Guidewire, FortiOS, Exchange).",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 70
+    },
+    {
+      "techniqueID": "T1133",
+      "tactic": "initial-access",
+      "color": "#f4a442",
+      "comment": "External Remote Services — détection via anomalie de connexion VPN hors horaires incluse dans le simulateur.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 60
+    },
+    {
+      "techniqueID": "T1098",
+      "tactic": "persistence",
+      "color": "#f4a442",
+      "comment": "Account Manipulation — détecté lors de la compromission de compte VIP. Playbook AD logue les modifications de droits.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 55
+    },
+    {
+      "techniqueID": "T1562",
+      "tactic": "defense-evasion",
+      "color": "#4884d6",
+      "comment": "Impair Defenses — couverture partielle. Alertes si le service de logs SIEM tombe ou est désactivé côté endpoint.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 40
+    },
+    {
+      "techniqueID": "T1041",
+      "tactic": "exfiltration",
+      "color": "#4884d6",
+      "comment": "Exfiltration Over C2 Channel — couverture partielle via IOC réseau + CTI OTX sur les IPs de destination.",
+      "enabled": true,
+      "metadata": [],
+      "links": [],
+      "showSubtechniques": false,
+      "score": 45
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffffff",
+      "#f4a442",
+      "#e84c4c"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {
+      "label": "Couverture Complète (Playbook SOAR actif)",
+      "color": "#e84c4c"
+    },
+    {
+      "label": "Couverture Partielle (Règle SIEM / CTI)",
+      "color": "#f4a442"
+    },
+    {
+      "label": "Détection Passive (Observable uniquement)",
+      "color": "#4884d6"
+    }
+  ],
+  "metadata": [],
+  "links": [],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#1a1a2e",
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false,
+  "selectVisibleTechniques": false
+}

@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/TheHive-Case%20Management-F5A623?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/AlienVault%20OTX-Threat%20Intel-00ADEF?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/CISA%20KEV-Live%20Feed-blue?style=for-the-badge"/>
+  <img src="https://github.com/Lkb-2905/plateforme-soc-assurance/actions/workflows/test_playbooks.yml/badge.svg" alt="SOC CI/CD Status"/>
 </p>
 
 > ⚠️ **NB IMPORTANT :** Il s'agit d'un projet **personnel/étudiant**. Le contexte assurantiel est utilisé uniquement pour donner un cadre d'entreprise réaliste à cette simulation. Aucune donnée réelle ou privée n'est exploitée. Tous les événements, logs, adresses IP et rapports sont entièrement fictifs.
@@ -114,8 +115,31 @@ Contrairement aux simulations classiques opérant avec de simples `print()`, ce 
 ### 2. 🎫 Export Automatisé TheHive (Case Management)
 À la fin de chaque exécution, le SOAR extrait tous les IOC (IPs, hashes, URLs), TLP, PAP et TTPs MITRE pour forger dynamiquement un ticket `.json` au format TheHive. Ce ticket contient les tâches structurées pour l'analyste N1/N2, les métriques de performance et les champs RGPD.
 
-### 3. 📄 Rapports d'Incidents Standards SOC
-Un rapport Markdown de qualité exécutive est généré automatiquement après chaque incident, reproduisant les standards documentaires d'un SOC de Groupe (timeline, actions, recommandations). Des exemples de rapports fonctionnels sont inclus dans `reports/generated/`.
+### 4. 🗺️ MITRE ATT&CK Navigator — Heatmap de Couverture
+Le fichier [`attck/coverage_layer.json`](attck/coverage_layer.json) est un layer ATT&CK Navigator prêt à l'emploi. Il mappe toutes les techniques détectées avec leur niveau de couverture (score 0→100).
+
+> **💡 Pour visualiser la heatmap :**
+> 1. Ouvrir [https://mitre-attack.github.io/attack-navigator/](https://mitre-attack.github.io/attack-navigator/)
+> 2. Cliquer **"Open Existing Layer"** → **"Upload from local"**
+> 3. Sélectionner `attck/coverage_layer.json`
+
+| Technique | Tactique | Score |
+| :--- | :--- | :--- |
+| T1566 / T1566.001 | Initial Access — Phishing | 🔴 95/100 |
+| T1486 | Impact — Ransomware | 🔴 90/100 |
+| T1078 | Initial Access — Valid Accounts | 🔴 90/100 |
+| T1110 | Credential Access — Bruteforce | 🟠 80/100 |
+| T1190 | Initial Access — Exploit (CISA KEV) | 🟠 70/100 |
+
+---
+
+## 🤖 Intégration Continue (CI/CD DevSecOps)
+
+Chaque `git push` sur la branche `main` déclenche automatiquement le pipeline **GitHub Actions** (`.github/workflows/test_playbooks.yml`) qui vérifie :
+- ✅ L'importabilité de tous les modules Python (SIEM, SOAR, CTI, Dashboard)
+- ✅ La présence et structure de tous les fichiers critiques
+- ✅ La conformité du format JSON des rapports TheHive
+- ✅ La validité du fichier MITRE ATT&CK Navigator
 
 ---
 

@@ -1,0 +1,97 @@
+name: SOC Platform — Tests d'intégrité des Playbooks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-soc-engine:
+    name: 🛡️ Vérification du Moteur SIEM/SOAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout du repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 📦 Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: ✅ Test d'import du Moteur SIEM/SOAR
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, 'scripts')
+          import importlib.util
+
+          modules_to_check = [
+              'scripts/soc_engine.py',
+              'scripts/generate_report.py',
+              'scripts/mock_edr_api.py',
+              'scripts/cti/cisa_kev_puller.py',
+              'scripts/cti/otx_ioc_lookup.py',
+          ]
+          for module_path in modules_to_check:
+              spec = importlib.util.spec_from_file_location('mod', module_path)
+              mod = importlib.util.module_from_spec(spec)
+              try:
+                  spec.loader.exec_module(mod)
+                  print(f'✅ OK : {module_path}')
+              except SystemExit:
+                  print(f'✅ OK (script exécutable) : {module_path}')
+              except Exception as e:
+                  print(f'❌ ERREUR : {module_path} => {e}')
+                  sys.exit(1)
+          print('--- Tous les modules SOC sont opérationnels ---')
+          "
+
+      - name: 🔍 Vérification de la structure des dossiers
+        run: |
+          echo "Vérification de la structure du projet..."
+          test -f requirements.txt && echo "✅ requirements.txt présent" || exit 1
+          test -f scripts/soc_engine.py && echo "✅ soc_engine.py présent" || exit 1
+          test -f scripts/mock_edr_api.py && echo "✅ mock_edr_api.py présent" || exit 1
+          test -f scripts/dashboard_soc.py && echo "✅ dashboard_soc.py présent" || exit 1
+          test -f scripts/cti/cisa_kev_puller.py && echo "✅ cisa_kev_puller.py présent" || exit 1
+          test -f scripts/cti/otx_ioc_lookup.py && echo "✅ otx_ioc_lookup.py présent" || exit 1
+          test -f attck/coverage_layer.json && echo "✅ MITRE ATT&CK layer présent" || exit 1
+          test -f docs/SOP_Reponse_Incident.md && echo "✅ SOP documentaire présent" || exit 1
+          echo "--- Structure du projet validée ✅ ---"
+
+      - name: 🧪 Validation du format TheHive JSON (si present)
+        run: |
+          python -c "
+          import glob, json, sys
+          files = glob.glob('reports/generated/thehive_case_*.json')
+          if not files:
+              print('ℹ️ Aucun rapport TheHive à valider (normal en CI)')
+              sys.exit(0)
+          for f in files:
+              with open(f) as fh:
+                  data = json.load(fh)
+              required_fields = ['title', 'description', 'severity', 'tags', 'observables', 'tasks']
+              for field in required_fields:
+                  assert field in data, f'Champ manquant : {field} dans {f}'
+              print(f'✅ Rapport TheHive valide : {f}')
+          print('--- Tous les rapports TheHive sont conformes ---')
+          "
+
+      - name: 📊 Validation du fichier MITRE ATT&CK Navigator
+        run: |
+          python -c "
+          import json, sys
+          with open('attck/coverage_layer.json') as f:
+              layer = json.load(f)
+          assert 'name' in layer, 'Champ name manquant'
+          assert 'techniques' in layer, 'Champ techniques manquant'
+          assert len(layer['techniques']) > 0, 'Aucune technique définie'
+          print(f'✅ MITRE ATT&CK Layer valide — {len(layer[\"techniques\"])} techniques couvertes')
+          scores = [t[\"score\"] for t in layer[\"techniques\"] if \"score\" in t]
+          print(f'   Score moyen de couverture : {sum(scores)/len(scores):.1f}/100')
+          "

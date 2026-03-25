@@ -66,10 +66,26 @@ def send_to_sentinel(events: list, dry_run: bool = False) -> dict:
     """
     body = json.dumps(events)
     content_length = len(body)
-    rfc1123_date   = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
+    rfc1123_date   = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
     resource       = "/api/logs"
     content_type   = "application/json"
 
+    print(f"\n{'='*60}")
+    print("  MICROSOFT SENTINEL — Ingestion d'Alertes SOC")
+    print(f"{'='*60}")
+    print(f"  Workspace  : {AZURE_WORKSPACE_ID[:8]}... (masqué)")
+    print(f"  Table      : {LOG_TYPE}_CL")
+    print(f"  Événements : {len(events)}")
+    print(f"  Date UTC   : {rfc1123_date}")
+    print(f"  Auth       : HMAC-SHA256 ✅")
+
+    if AZURE_WORKSPACE_ID == "YOUR_WORKSPACE_ID" or AZURE_WORKSPACE_KEY == "YOUR_PRIMARY_KEY":
+        print("\n  ⚠️  Mode DÉMONSTRATION : configurez AZURE_WORKSPACE_ID et Key dans .env")
+        print("      pour activer l'envoi réel vers Microsoft Sentinel.")
+        print(f"  [DRY RUN APPLIQUÉ] Payload : {body[:200]}...")
+        return {"status": "demo_mode", "events_count": len(events)}
+
+    # On ne construit la signature que s'il y a une vraie clé configurée
     signature = _build_signature(
         AZURE_WORKSPACE_ID, AZURE_WORKSPACE_KEY,
         rfc1123_date, content_length,
@@ -87,25 +103,11 @@ def send_to_sentinel(events: list, dry_run: bool = False) -> dict:
         "x-ms-date":     rfc1123_date,
     }
 
-    print(f"\n{'='*60}")
-    print("  MICROSOFT SENTINEL — Ingestion d'Alertes SOC")
-    print(f"{'='*60}")
-    print(f"  Workspace  : {AZURE_WORKSPACE_ID[:8]}... (masqué)")
-    print(f"  Table      : {LOG_TYPE}_CL")
-    print(f"  Événements : {len(events)}")
-    print(f"  Date UTC   : {rfc1123_date}")
-    print(f"  Auth       : HMAC-SHA256 ✅")
-
     if dry_run:
         print("\n  [DRY RUN] Requête construite — aucun envoi effectif.")
         print(f"  Endpoint : {uri}")
         print(f"  Payload  : {body[:200]}...")
         return {"status": "dry_run", "events_count": len(events)}
-
-    if AZURE_WORKSPACE_ID == "YOUR_WORKSPACE_ID":
-        print("\n  ⚠️  Mode DÉMONSTRATION : configurez AZURE_WORKSPACE_ID dans .env")
-        print("      pour activer l'envoi réel vers Microsoft Sentinel.")
-        return {"status": "demo_mode", "events_count": len(events)}
 
     try:
         response = requests.post(uri, data=body, headers=headers, timeout=10)
@@ -128,7 +130,7 @@ def build_soc_event(incident_type: str, severity: str, source_ip: str,
     Ce format est compatible avec les règles d'Analytics de Microsoft Sentinel.
     """
     return {
-        "TimeGenerated":     datetime.datetime.utcnow().isoformat() + "Z",
+        "TimeGenerated":     datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
         "IncidentType":      incident_type,
         "Severity":          severity,                  # High / Medium / Low / Critical
         "SourceIP":          source_ip,

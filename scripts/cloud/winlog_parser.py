@@ -119,10 +119,10 @@ def generate_realistic_log_sample() -> list:
     Génère un échantillon de logs Windows réalistes reproduisant
     une séquence d'attaque Ransomware complète (Kill Chain).
     """
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     def ts(offset_sec=0):
-        return (now + datetime.timedelta(seconds=offset_sec)).isoformat() + "Z"
+        return (now + datetime.timedelta(seconds=offset_sec)).isoformat().replace("+00:00", "Z")
 
     return [
         # 1. Phishing initial — connexion réseau suspecte

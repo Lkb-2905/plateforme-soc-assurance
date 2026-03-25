@@ -294,49 +294,70 @@ python scripts/cloud/azure_sentinel_connector.py
 
 ## 🚀 Guide d'Installation & Run Book
 
-> **Pré-requis :** Python 3.10+ installé. Vérifiez que la commande `python` pointe vers la bonne installation (via `python --version`).
+> 💡 **Pré-requis :** Python 3.10+ installé. Assurez-vous que la commande `python` pointe bien vers votre installation Python officielle, et non vers un sous-système (ex: Msys64/MinGW). En cas de doute, remplacez `python` par le chemin absolu de votre exécutable (ex: `C:\\...\\python.exe`).
 
-### 📦 Étape 1 — Installation des dépendances (une seule fois)
+### 📦 Étape 1 — Installation des bibliothèques (une seule fois)
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-### 🌐 Étape 2 — Démarrage du Serveur EDR/AD Mock (Terminal 1)
+### 🌐 Étape 2 — Démarrage de l'infrastructure de défense (Terminal 1)
 
-Laissez ce terminal ouvert en arrière-plan. Il représente les équipements de sécurité de l'entreprise.
+L'API Mock simule les réponses HTTP de l'EDR, de l'Active Directory, et de la Gateway Mail.
 
 ```bash
 python scripts/mock_edr_api.py
 ```
-*Serveur actif sur `http://127.0.0.1:8080` — à laisser tourner*
+*Le serveur tourne sur `http://127.0.0.1:8080` — laissez ce terminal ouvert.*
 
-### 🛡️ Étape 3 — Simulation de Cyberattaque & Réponse Automatisée (Terminal 2)
+### 🛡️ Étape 3 — Simulation & Mitigation des Incidents (Terminal 2)
 
-Le SIEM détecte → Le SOAR répond → L'API Mock confirme l'isolation.
+Le SIEM détecte les attaques JSON, le SOAR applique les playbooks et déclenche l'isolation via l'API.
 
 ```bash
-# Scénario Ransomware (MITRE T1486 — Data Encrypted for Impact)
+# Scénario 1 : Ransomware (Chiffrement massif / T1486)
 python scripts/soc_engine.py --scenario ransomware
 
-# Scénario Phishing Assurantiel (MITRE T1566.001 — Spearphishing Link)
+# Scénario 2 : Phishing Assurantiel (T1566.001)
 python scripts/soc_engine.py --scenario phishing
+
+# Scénario 3 : Compromission VIP / AD (T1078)
+python scripts/soc_engine.py --scenario account_compromise
 ```
 
 ### 📊 Étape 4 — SOC Executive Dashboard (Terminal 3)
 
+Visualisez les alertes, le reporting réglementaire et la Threat Intelligence en temps réel.
+
 ```bash
 python -m streamlit run scripts/dashboard_soc.py
 ```
-*Navigateur → `http://localhost:8501` — 2 onglets : Incidents SOC & Threat Intelligence CTI*
+👉 *Ouvrez **`http://localhost:8501`** dans votre navigateur.*
 
-### 📡 Étape 5 — Cyber-Veille Open-Source (Facultatif, n'importe quel terminal)
+<p align="center">
+  <img src="Capture%20d%E2%80%99%C3%A9cran_25-3-2026_113845_localhost.jpeg" alt="Dashboard SOC Streamlit" width="850">
+</p>
+
+### ☁️ Étape 5 — Data Engineering Cloud & Sentinel (N'importe quel terminal)
+
+Montrez l'ingestion de logs industriels réels et le transfert vers le Cloud via HMAC-SHA256 :
 
 ```bash
-# Réputation IP mondiale via AlienVault OTX (API publique sans clé)
+# 1. Ingestion & Corrélation depuis des logs Windows/Sysmon
+python scripts/cloud/winlog_parser.py
+
+# 2. Push Cloud via API REST Microsoft Sentinel
+python scripts/cloud/azure_sentinel_connector.py
+```
+
+### 📡 Étape 6 — Threat Intelligence en ligne de commande (Bonus)
+
+```bash
+# Requête API publique OTX (AlienVault) sur une IP ciblée
 python scripts/cti/otx_ioc_lookup.py
 
-# Catalogues vulnérabilités du gouvernement US — CISA KEV
+# Aspiration du catalogue de failles critiques CISA KEV
 python scripts/cti/cisa_kev_puller.py
 ```
 

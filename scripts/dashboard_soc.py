@@ -11,8 +11,12 @@ REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "reports", "generate
 
 st.title("🛡️ Portail SOC - Surveillance & Réponse (Assurances)")
 
-# Création de deux onglets (Tabs) pour séparer le SOC et la Veille
-tab1, tab2 = st.tabs(["🎫 Incidents SOC & Réponse", "📡 Threat Intelligence (CTI Open-Source)"])
+# Création de trois onglets (Tabs) pour séparer le SOC, la Veille et le Cloud
+tab1, tab2, tab3 = st.tabs([
+    "🎫 Incidents SOC & Réponse", 
+    "📡 Threat Intelligence (CTI Open-Source)",
+    "☁️ Azure Sentinel (Cloud & Sysmon)"
+])
 
 with tab1:
     st.markdown("---")
@@ -153,3 +157,47 @@ with tab2:
                             st.success("✅ OTX Clean : Aucune menace communautaire détectée pour cet indicateur réseau.")
         else:
             st.info("Aucun log d'enrichissement AlienVault récupéré. \n👉 Lancez `C:\\Users\\pc\\.pyenv\\pyenv-win\\versions\\3.12.10\\python.exe scripts\\cti\\otx_ioc_lookup.py` dans le terminal.")
+
+with tab3:
+    st.markdown("---")
+    st.header("☁️ Azure Sentinel — Ingestion de Logs & Règles Sigma")
+    st.markdown("> **Simulation d'ingestion Cloud-native** : Parsing de logs Sysmon/Windows réels industriels, corrélation MITRE ATT&CK, et formatage pour l'API REST Azure Log Analytics.")
+    
+    winlog_path = os.path.join(REPORTS_DIR, "winlog_analysis.json")
+    
+    if os.path.exists(winlog_path):
+        with open(winlog_path, "r", encoding="utf-8") as f:
+            winlog_data = json.load(f)
+            
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Logs Systèmes Ingestés", winlog_data.get("total", 0))
+        m2.metric("Alertes SOC (Règles Sigma)", winlog_data.get("alerts", 0))
+        m3.metric("Événements Critiques 🔴", winlog_data.get("critical", 0))
+        m4.metric("Statut Sentinel API", "HMAC-SHA256 Ready ✅")
+        
+        st.markdown("---")
+        st.subheader("🔍 Analyse des Logs Sysmon Correlés")
+        
+        # Transformation des données pour l'affichage dans un beau tableau
+        events_for_display = []
+        for ev in winlog_data.get("events", []):
+            sev = ev.get("Severity", "Informational")
+            icon = "🔴" if sev == "Critical" else "🟠" if sev == "High" else "🟡" if sev == "Medium" else "🟢"
+            
+            events_for_display.append({
+                "Statut": icon,
+                "Sévérité": sev,
+                "TimeGenerated (UTC)": ev.get("TimeGenerated"),
+                "EventID": ev.get("EventID"),
+                "Host": ev.get("Computer"),
+                "Technique MITRE": ev.get("MitreTechnique", "N/A"),
+                "Tactique": ev.get("MitreTactic", "N/A")
+            })
+            
+        st.dataframe(events_for_display, use_container_width=True)
+        
+        with st.expander("📡 Voir le Payload JSON (Posté vers Azure Log Analytics)"):
+            st.json(winlog_data.get("events", []))
+            
+    else:
+        st.info("⚠️ Aucun log système ingéré. \n👉 Ouvre ton terminal et lance la commande suivante pour parser la Kill Chain Ransomware :\n\n`C:\\Users\\pc\\.pyenv\\pyenv-win\\versions\\3.12.10\\python.exe scripts\\cloud\\winlog_parser.py`")

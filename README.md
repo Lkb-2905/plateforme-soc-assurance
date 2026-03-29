@@ -296,7 +296,16 @@ python scripts/cloud/azure_sentinel_connector.py
 
 > 💡 **Pré-requis :** Python 3.10+ installé. Assurez-vous que la commande `python` pointe bien vers votre installation Python officielle, et non vers un sous-système (ex: Msys64/MinGW). En cas de doute, remplacez `python` par le chemin absolu de votre exécutable (ex: `C:\\...\\python.exe`).
 
-### 📦 Étape 1 — Installation des bibliothèques (une seule fois)
+### 📦 Étape 1 — Activation de l'environnement virtuel & Installation (une seule fois)
+
+**Important :** Il est fortement recommandé d'utiliser l'environnement virtuel du projet. Sur Windows (avec PowerShell), activez-le avant toute chose :
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+*(En cas d'erreur de politique d'exécution, lancez d'abord : `Set-ExecutionPolicy Unrestricted -Scope Process`)*
+
+Ensuite, installez les dépendances requises :
 
 ```bash
 python -m pip install -r requirements.txt

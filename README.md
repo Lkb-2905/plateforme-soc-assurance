@@ -144,7 +144,7 @@ Trois scénarios majeurs entièrement automatisés, contextualisés au secteur a
   <img src="Capture d'écran_23-3-2026_184310_localhost.jpeg" alt="SOC Executive Dashboard" width="900" style="border-radius:10px;">
 </p>
 
-> 📥 **[Télécharger le Rapport Exécutif Complet (Export PDF)](<SOC Executive Dashboard.pdf>)**
+> 📥 **[Télécharger le Rapport Exécutif Complet (Export PDF)](SOC%20Executive%20Dashboard.pdf)**
 
 ### 1. 🤖 Moteur SOAR Interactif (API EDR Mock)
 Contrairement aux simulations classiques opérant avec de simples `print()`, ce SOAR utilise la librairie `requests` pour attaquer un serveur FastAPI local simulant un vrai EDR. Cela **prouve la viabilité totale des scripts en production** sur des outils comme CrowdStrike, SentinelOne ou Microsoft Defender. Un mécanisme de *fallback gracieux* évite tout crash si l'API est indisponible.
@@ -183,6 +183,8 @@ Chaque `git push` sur la branche `main` déclenche automatiquement le pipeline *
 ## 📡 Module CTI Open-Source
 
 Le projet intègre deux connecteurs de renseignement sur les menaces en temps réel :
+
+> 📥 **[Télécharger le Rapport Exécutif CTI (Export PDF)](CTI.pdf)**
 
 ### 🌍 AlienVault OTX (`scripts/cti/otx_ioc_lookup.py`)
 - Interroge l'API publique AlienVault Open Threat Exchange en direct.
@@ -224,6 +226,8 @@ La construction de cette plateforme sans Docker ni solutions pré-packagées a s
 ## ☁️ Module Cloud — Microsoft Sentinel & Sigma Rules
 
 > Ce module élève le projet au niveau **Cloud-Native SOC** en intégrant une couche Azure réelle et les standards industriels de détection.
+> 
+> 📥 **[Télécharger le Rapport Exécutif Azure Sentinel (Export PDF)](Azure%20Sentinel.pdf)**
 
 ### 🔵 Microsoft Sentinel — Ingestion d'Alertes Cloud (`scripts/cloud/azure_sentinel_connector.py`)
 
